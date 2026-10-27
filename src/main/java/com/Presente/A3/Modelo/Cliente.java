@@ -4,10 +4,10 @@ public class Cliente {
  private Long id;
  private String nome;
  private String email;
- private int telefone;
+ private String telefone;
  
  // Construtor
-public Cliente(Long id, String nome, String email, int telefone) {
+public Cliente(Long id, String nome, String email, String telefone) {
      this.id = id;
      this.nome = nome;
      this.email = email;
@@ -39,11 +39,11 @@ public Cliente(Long id, String nome, String email, int telefone) {
      this.email = email;
  }
 
- public int getTelefone() {
+ public String getTelefone() {
      return telefone;
  }
 
- public void setTelefone(int telefone) {
+ public void setTelefone(String telefone) {
      this.telefone = telefone;
  
  }
