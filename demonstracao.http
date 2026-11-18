@@ -124,3 +124,29 @@ DELETE {{base}}/clientes/6
 
 ### 21. Listar todos os golpistas (suspeitos e confirmados)
 GET {{base}}/golpistas
+
+### --- CAMADAS DE ANÁLISE (regras + classificador local + IA opcional) ---
+
+### 22. Quais camadas estão ativas? (ia=false enquanto app.ia.habilitada=false)
+GET {{base}}/prevencao/camadas
+
+### 23. Mensagem fora do padrão clássico: o classificador local ajuda as regras
+POST {{base}}/prevencao/mensagem
+Content-Type: application/json
+
+{ "mensagem": "Seu presente de aniversário já está com o motoboy, o cliente que enviou pediu que você pague o envio no débito." }
+
+### 24. Mensagem curta demais -> inconclusivo=true, confianca=BAIXA ("sem dados suficientes")
+POST {{base}}/prevencao/mensagem
+Content-Type: application/json
+
+{ "mensagem": "Oi" }
+
+### 25. Número sem histórico (partida a frio) -> BAIXO, mas inconclusivo=true
+GET {{base}}/prevencao/telefone?numero=11955550000
+
+### 26. Verificar a loja pelo CNPJ (consulta a Receita via BrasilAPI; precisa de internet)
+GET {{base}}/prevencao/cnpj?numero=19.131.243/0001-97
+
+### 27. CNPJ inválido -> 400 com mensagem de erro
+GET {{base}}/prevencao/cnpj?numero=123

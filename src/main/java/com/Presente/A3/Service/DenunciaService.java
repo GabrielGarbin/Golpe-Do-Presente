@@ -1,10 +1,12 @@
 package com.Presente.A3.Service;
 
+import com.Presente.A3.Analise.ClassificadorLocal;
 import com.Presente.A3.Dto.DenunciaRequest;
 import com.Presente.A3.Modelo.CanalContato;
 import com.Presente.A3.Modelo.Cliente;
 import com.Presente.A3.Modelo.Denuncia;
 import com.Presente.A3.Modelo.Golpista;
+import com.Presente.A3.Modelo.StatusGolpista;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -40,13 +42,16 @@ public class DenunciaService {
 
     private final ClienteService clienteService;
     private final GolpistaService golpistaService;
+    private final ClassificadorLocal classificador;
 
     private final ConcurrentSkipListMap<Long, Denuncia> denuncias = new ConcurrentSkipListMap<>();
     private final AtomicLong sequencia = new AtomicLong();
 
-    public DenunciaService(ClienteService clienteService, GolpistaService golpistaService) {
+    public DenunciaService(ClienteService clienteService, GolpistaService golpistaService,
+                           ClassificadorLocal classificador) {
         this.clienteService = clienteService;
         this.golpistaService = golpistaService;
+        this.classificador = classificador;
     }
 
     /**
@@ -94,7 +99,40 @@ public class DenunciaService {
         denuncias.put(d.getId(), d);
 
         golpistaService.registrarDenuncia(golpista); // pode promover a CONFIRMADO
+        alimentarClassificador(golpista, d);
         return d;
+    }
+
+    /**
+     * Faz o classificador local aprender com os relatos reais, mas <b>só de
+     * números CONFIRMADOS</b> (denunciados por várias pessoas distintas). Assim
+     * uma única denúncia falsa não consegue "ensinar" o modelo. No momento da
+     * confirmação, aprende também os relatos anteriores desse número.
+     */
+    private void alimentarClassificador(Golpista golpista, Denuncia nova) {
+        if (golpista.getStatus() != StatusGolpista.CONFIRMADO) {
+            return;
+        }
+        if (golpista.getTotalDenuncias() == golpistaService.getLimiteConfirmacao()) {
+            for (Denuncia d : denuncias.values()) {
+                if (golpista.getId().equals(d.getGolpistaId())) {
+                    aprenderRelato(d);
+                }
+            }
+        } else {
+            aprenderRelato(nova);
+        }
+    }
+
+    private void aprenderRelato(Denuncia d) {
+        if (d.getDescricao() == null) {
+            return;
+        }
+        // remove o sufixo "[Valor anunciado: ... | cobrado: ...]" que o front acrescenta
+        String relato = d.getDescricao().replaceAll("\\[Valor anunciado:[^\\]]*\\]", "").trim();
+        if (relato.length() >= 30) {
+            classificador.aprender(relato, true);
+        }
     }
 
     public List<Denuncia> listar() {

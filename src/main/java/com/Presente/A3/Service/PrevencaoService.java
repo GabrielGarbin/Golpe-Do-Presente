@@ -1,21 +1,19 @@
 package com.Presente.A3.Service;
 
+import com.Presente.A3.Analise.AnaliseMensagemService;
 import com.Presente.A3.Dto.ResultadoVerificacao;
+import com.Presente.A3.Modelo.Confianca;
 import com.Presente.A3.Modelo.Golpista;
 import com.Presente.A3.Modelo.NivelRisco;
 import com.Presente.A3.Modelo.StatusGolpista;
 import org.springframework.stereotype.Service;
 
-import java.text.Normalizer;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Camada de <b>prevenção</b>: ajuda a pessoa a desconfiar ANTES de o
@@ -29,52 +27,23 @@ import java.util.Set;
  *   <li>{@link #checklistEntrega()}: orientações para antes, durante e depois.</li>
  * </ol>
  *
- * <p><b>Limitações assumidas:</b> a análise de texto é uma heurística simples
- * (palavras-chave com pesos) e pode errar em ambos os sentidos. Um resultado
- * BAIXO nunca garante segurança; por isso toda resposta traz recomendações.
- * Como evolução, este método pode ser substituído por um modelo de
- * classificação de texto sem alterar os endpoints.</p>
+ * <p><b>Limitações assumidas:</b> a análise de texto combina regras e um
+ * classificador treinado com poucos exemplos, e pode errar em ambos os
+ * sentidos. Um resultado BAIXO nunca garante segurança; por isso toda
+ * resposta traz recomendações e, quando há pouca evidência, o resultado é
+ * marcado como inconclusivo.</p>
  */
 @Service
 public class PrevencaoService {
 
     private static final DateTimeFormatter DATA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    /** Pontuação a partir da qual o risco é considerado ALTO. */
-    private static final int LIMIAR_ALTO = 60;
-    /** Pontuação a partir da qual o risco é considerado MEDIO. */
-    private static final int LIMIAR_MEDIO = 30;
-    /** Bônus quando aparecem juntos "brinde" e "cobrança": é a assinatura do golpe. */
-    private static final int BONUS_COMBINACAO = 20;
-    private static final int PESO_REMETENTE_CONFIRMADO = 50;
-    private static final int PESO_REMETENTE_SUSPEITO = 25;
-
-    /**
-     * Regras de detecção. Os termos estão sem acento e em minúsculas, pois o
-     * texto da mensagem é normalizado da mesma forma antes da comparação.
-     */
-    private static final List<Regra> REGRAS = List.of(
-            new Regra("BRINDE", "Promete brinde, prêmio ou presente gratuito", 25,
-                    "voce ganhou", "ganhou um", "sorteado", "contemplado", "brinde",
-                    "presente gratis", "premio"),
-            new Regra("ENTREGADOR", "Diz que um entregador está a caminho", 20,
-                    "entregador", "motoboy", "a caminho", "entrega do seu", "entregar seu"),
-            new Regra("COBRANCA", "Pede taxa ou frete para entregar o brinde", 30,
-                    "taxa de entrega", "taxa", "frete", "valor da entrega", "custo de envio"),
-            new Regra("PAGAMENTO", "Menciona pagamento por maquininha ou cartão", 15,
-                    "maquininha", "cartao", "debito", "credito"),
-            new Regra("URGENCIA", "Cria urgência para você decidir rápido", 10,
-                    "urgente", "agora", "hoje", "imediatamente", "ultimas horas", "nao perca"),
-            new Regra("LINK", "Contém link ou pede para clicar", 15,
-                    "http", "www.", "bit.ly", "clique", "acesse o link"),
-            new Regra("DADOS", "Pede confirmação de dados pessoais", 15,
-                    "confirme seu endereco", "confirmar seu endereco", "seu cpf",
-                    "confirme seus dados", "dados do cartao"));
-
     private final GolpistaService golpistaService;
+    private final AnaliseMensagemService analiseMensagem;
 
-    public PrevencaoService(GolpistaService golpistaService) {
+    public PrevencaoService(GolpistaService golpistaService, AnaliseMensagemService analiseMensagem) {
         this.golpistaService = golpistaService;
+        this.analiseMensagem = analiseMensagem;
     }
 
     // ------------------------------------------------------------------
@@ -98,8 +67,12 @@ public class PrevencaoService {
 
         if (encontrado.isEmpty()) {
             motivos.add("Nenhuma denúncia registrada para este número na base colaborativa.");
-            return new ResultadoVerificacao(NivelRisco.BAIXO, 0, motivos,
-                    recomendacoes(NivelRisco.BAIXO));
+            motivos.add("Sem dados suficientes: a base ainda não tem histórico deste número. "
+                    + "Isso NÃO significa que ele seja seguro.");
+            List<String> rec = recomendacoes(NivelRisco.BAIXO);
+            rec.add("Se a mensagem recebida for suspeita, cole o texto na análise de mensagem para uma segunda avaliação.");
+            return new ResultadoVerificacao(NivelRisco.BAIXO, 0, motivos, rec,
+                    Confianca.BAIXA, true, List.of("BASE_COLABORATIVA"));
         }
 
         Golpista g = encontrado.get();
@@ -114,7 +87,9 @@ public class PrevencaoService {
             nivel = NivelRisco.ALTO;
             motivos.add("O número atingiu o limite de " + limite + " denúncias e consta na blacklist.");
         }
-        return new ResultadoVerificacao(nivel, pontuacao, motivos, recomendacoes(nivel));
+        return new ResultadoVerificacao(nivel, pontuacao, motivos, recomendacoes(nivel),
+                nivel == NivelRisco.ALTO ? Confianca.ALTA : Confianca.MEDIA, false,
+                List.of("BASE_COLABORATIVA"));
     }
 
     // ------------------------------------------------------------------
@@ -123,79 +98,26 @@ public class PrevencaoService {
 
     /**
      * Analisa o texto de uma mensagem recebida e estima o risco de ser o
-     * Golpe do Presente.
-     *
-     * <p>Cada regra disparada soma pontos (máx. 100). Se brinde e cobrança
-     * aparecem juntos, soma-se um bônus. Se o remetente informado estiver na
-     * base colaborativa, soma-se ainda mais e, quando CONFIRMADO, o risco é
-     * sempre ALTO.</p>
+     * Golpe do Presente, combinando regras, classificador local, base
+     * colaborativa e, se configurada, uma IA externa. Os detalhes de cada
+     * camada estão em {@link AnaliseMensagemService}.
      *
      * @param mensagem          texto recebido (obrigatório)
      * @param telefoneRemetente número de quem enviou (opcional)
      * @throws IllegalArgumentException mensagem vazia ou telefone inválido
      */
     public ResultadoVerificacao analisarMensagem(String mensagem, String telefoneRemetente) {
-        if (mensagem == null || mensagem.isBlank()) {
-            throw new IllegalArgumentException("A mensagem a ser analisada é obrigatória.");
-        }
+        return analisarMensagem(mensagem, telefoneRemetente, "anonimo");
+    }
 
-        String texto = normalizarTexto(mensagem);
-        int pontos = 0;
-        List<String> motivos = new ArrayList<>();
-        Set<String> disparadas = new HashSet<>();
+    /** Igual ao anterior, identificando quem pediu (ex.: IP) para limitar o uso da IA. */
+    public ResultadoVerificacao analisarMensagem(String mensagem, String telefoneRemetente, String solicitante) {
+        return analiseMensagem.analisar(mensagem, telefoneRemetente, solicitante);
+    }
 
-        for (Regra regra : REGRAS) {
-            if (regra.casaCom(texto)) {
-                pontos += regra.peso;
-                disparadas.add(regra.id);
-                motivos.add(regra.descricao + " (+" + regra.peso + ")");
-            }
-        }
-
-        // Assinatura do golpe: prometer um brinde e, ao mesmo tempo, cobrar algo.
-        if (disparadas.contains("BRINDE")
-                && (disparadas.contains("COBRANCA") || disparadas.contains("PAGAMENTO"))) {
-            pontos += BONUS_COMBINACAO;
-            motivos.add("Combinação típica do Golpe do Presente: brinde + cobrança (+"
-                    + BONUS_COMBINACAO + ")");
-        }
-
-        // Cruza com a base colaborativa, se o remetente foi informado.
-        boolean remetenteConfirmado = false;
-        if (telefoneRemetente != null && !telefoneRemetente.isBlank()) {
-            Optional<Golpista> remetente = golpistaService.findByTelefone(telefoneRemetente);
-            if (remetente.isPresent()) {
-                if (remetente.get().getStatus() == StatusGolpista.CONFIRMADO) {
-                    remetenteConfirmado = true;
-                    pontos += PESO_REMETENTE_CONFIRMADO;
-                    motivos.add("O remetente consta na blacklist colaborativa (+"
-                            + PESO_REMETENTE_CONFIRMADO + ")");
-                } else {
-                    pontos += PESO_REMETENTE_SUSPEITO;
-                    motivos.add("O remetente já foi denunciado, mas ainda não confirmado (+"
-                            + PESO_REMETENTE_SUSPEITO + ")");
-                }
-            }
-        }
-
-        if (remetenteConfirmado) {
-            pontos = Math.max(pontos, LIMIAR_ALTO); // coerência entre nota e nível
-        }
-        pontos = Math.min(100, pontos);
-
-        NivelRisco nivel;
-        if (remetenteConfirmado || pontos >= LIMIAR_ALTO) {
-            nivel = NivelRisco.ALTO;
-        } else if (pontos >= LIMIAR_MEDIO) {
-            nivel = NivelRisco.MEDIO;
-        } else {
-            nivel = NivelRisco.BAIXO;
-        }
-
-        if (motivos.isEmpty()) {
-            motivos.add("Nenhum padrão típico do golpe foi identificado no texto.");
-        }
-        return new ResultadoVerificacao(nivel, pontos, motivos, recomendacoes(nivel));
+    /** @return true se há uma IA externa configurada */
+    public boolean iaDisponivel() {
+        return analiseMensagem.iaDisponivel();
     }
 
     // ------------------------------------------------------------------
@@ -249,36 +171,5 @@ public class PrevencaoService {
                 r.add("Em caso de dúvida, confirme com a loja por um canal oficial.");
         }
         return r;
-    }
-
-    /** Remove acentos e padroniza caixa, para comparar texto de forma tolerante. */
-    private static String normalizarTexto(String texto) {
-        String semAcento = Normalizer.normalize(texto, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
-        return semAcento.toLowerCase(Locale.ROOT);
-    }
-
-    /** Regra de detecção: identificador, descrição, peso e termos que a ativam. */
-    private static final class Regra {
-        private final String id;
-        private final String descricao;
-        private final int peso;
-        private final String[] termos;
-
-        private Regra(String id, String descricao, int peso, String... termos) {
-            this.id = id;
-            this.descricao = descricao;
-            this.peso = peso;
-            this.termos = termos;
-        }
-
-        /** @return true se o texto (já normalizado) contém algum dos termos */
-        private boolean casaCom(String textoNormalizado) {
-            for (String termo : termos) {
-                if (textoNormalizado.contains(termo)) {
-                    return true;
-                }
-            }
-            return false;
-        }
     }
 }

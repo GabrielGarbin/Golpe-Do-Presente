@@ -1,0 +1,113 @@
+# Corpus de treino do classificador local (camada 2).
+# Formato: G|texto (golpe)  ou  L|texto (mensagem legítima). Linhas com # são ignoradas.
+# ATENÇÃO: exemplos escritos à mão pelo grupo para o protótipo (poucos e sintéticos).
+# Para melhorar o modelo, acrescente mensagens reais (anonimizadas) vindas das denúncias.
+G|Parabéns! Você ganhou um brinde exclusivo da nossa loja. O entregador está a caminho, só precisa pagar a taxa de entrega na maquininha.
+G|Você foi sorteado na nossa promoção! Para receber seu presente pague apenas o frete de R$ 9,90 no cartão na hora da entrega.
+G|Seu presente chegou! O motoboy passa hoje na sua casa, deixe o cartão em mãos para pagar a taxa de envio.
+G|Olá, sou da floricultura e temos um presente para você. Confirme seu endereço para o entregador ir até aí.
+G|Sua encomenda está a caminho. Confirme seus dados e o entregador levará a maquininha para o pagamento do frete.
+G|Você foi contemplado com um kit de perfumes grátis, basta pagar uma pequena taxa de postagem de R$ 12,00 no débito.
+G|Última chance! Seu prêmio será devolvido hoje se você não confirmar o recebimento. Clique no link para garantir.
+G|Amiga, uma cliente comprou um brinde para você. O entregador vai passar aí, só precisa pagar o valor da entrega no débito.
+G|Prezado cliente, seu CPF foi sorteado! Clique em http://premio-facil.example para resgatar seu presente.
+G|Parabéns, você ganhou uma cesta de café da manhã! Taxa de entrega de R$ 15,00 a ser paga na maquininha pelo entregador.
+G|Atenção: seu brinde está reservado em seu nome. Pague o frete na entrega e receba hoje mesmo, não perca.
+G|Oi, tudo bem? Tenho um presente de aniversário para você enviado por um admirador secreto. O motoboy chega em instantes, tenha o cartão.
+G|Promoção relâmpago: você ganhou uma caixa de chocolates. Responda SIM para o entregador ir até seu endereço cobrar a taxa.
+G|Seu prêmio da campanha já foi separado. Para liberar a entrega confirme seu endereço e prepare o cartão de débito para a taxa.
+G|Você tem um presente aguardando. O entregador só aceita cartão, passe na maquininha o valor da entrega de R$ 19,90.
+G|Mensagem urgente: você foi selecionado para receber um brinde gratuito. Pague o custo de envio agora e receba em até uma hora.
+G|Cliente especial, sua cesta de presente está a caminho. Aguarde o entregador com a maquininha para quitar o frete.
+G|Ganhou um vale-presente! Acesse o link para confirmar seus dados e pague a taxa de liberação.
+G|Olá! Presente enviado em seu nome pela loja parceira, falta apenas pagar a taxa de entrega no cartão de crédito na porta.
+G|Sorteio contemplou você com uma cafeteira nova. O entregador passa hoje, pague apenas o frete na maquininha.
+G|Seu brinde de fim de ano chegou na cidade. Responda para confirmar o endereço, a taxa é cobrada na entrega no cartão.
+G|Atenção, o entregador está na sua rua com seu presente. Prepare o cartão para o pagamento da taxa de entrega.
+G|Você foi escolhido para receber um perfume de brinde. Pague R$ 8,50 de frete pela maquininha quando o motoboy chegar.
+G|Ganhei um presente para você, um amigo pediu para enviar. O entregador vai cobrar uma taxinha de entrega no débito.
+G|Oferta exclusiva: receba um brinde grátis pagando só o frete. Clique no link e confirme seus dados do cartão.
+G|Valores a receber! Você tem dinheiro esquecido no banco. Pague uma taxa de liberação agora para receber o valor.
+G|O Banco Central identificou valores esquecidos em seu nome. Clique no link e pague a taxa para liberar o saque.
+G|Seu CPF possui dinheiro a receber. Acesse o link urgente e confirme seus dados e a chave Pix para liberar.
+G|Seu cartão foi bloqueado por segurança. Clique no link imediatamente e confirme seus dados e senha para desbloquear.
+G|Compra suspeita no seu cartão de crédito. Acesse o link agora e informe os dados do cartão para cancelar.
+G|Sua encomenda está retida na alfândega. Pague a taxa de liberação pelo link hoje ou ela será devolvida.
+G|Banco informa: atualize seu cadastro hoje ou sua conta será encerrada. Clique em www.banco-seguro.example e informe seus dados.
+G|Oi mãe, mudei de número e meu celular quebrou. Pode me fazer um Pix urgente que depois eu explico?
+G|Parabéns, seu número foi sorteado em nossa promoção do dia dos namorados. Pague a taxa de entrega e receba seu prêmio em casa.
+G|Seu presente de natal está pronto para entrega. Confirme seu endereço e pague a taxa na maquininha do entregador.
+G|Você ganhou um aparelho de som! Falta só o pagamento do frete, o entregador leva a maquininha até você hoje.
+G|Última hora para receber seu brinde. Passe o cartão na maquininha quando o motoboy chegar, valor da taxa R$ 14,90.
+G|Sou entregador e estou com um presente para você. O cliente que enviou pediu para cobrar o frete aqui na hora.
+G|Seu brinde foi enviado! Para evitar o cancelamento clique no link e confirme seus dados pessoais agora.
+G|Presente grátis para você! Basta pagar uma pequena taxa de manuseio no cartão para o entregador deixar na sua porta.
+G|Campanha de aniversário da loja: você ganhou um brinde surpresa. O entregador cobra apenas a taxa de entrega.
+G|Você recebeu um presente de um admirador. O motoboy já saiu, deixe o cartão pronto para pagar a taxa de R$ 11,00.
+G|Fomos sorteados juntos! Seu prêmio chega hoje, mas a transportadora exige pagamento da taxa na maquininha.
+G|Contemplado! Retire seu prêmio em casa pagando apenas o frete. Responda agora para não perder.
+G|Atenção cliente: sua cesta de brindes aguarda confirmação. Envie seu CPF e endereço para o entregador ir aí.
+G|Parabéns! Brinde liberado. Taxa de entrega de R$ 9,00 deve ser paga no débito diretamente com o entregador.
+G|Sua entrega está a caminho, tenha R$ 20,00 ou cartão para a taxa, pois o presente só é entregue mediante pagamento.
+G|Olá, aqui é da loja. Seu presente de brinde está com o entregador, aguarde o contato dele para pagar a taxa de envio na maquininha.
+G|Pagamento pendente da taxa de entrega do seu prêmio. Regularize hoje pelo link para não perder o brinde.
+G|Você ganhou um kit de beleza em nossa campanha. Informe os dados do cartão para pagar o frete e receber hoje.
+G|Receba seu presente grátis em casa! Entregador chegando, cobrança de taxa somente no cartão de débito.
+L|Oi, vamos almoçar amanhã?
+L|Seu pedido número 4582 saiu para entrega e chega hoje entre 14h e 18h. Acompanhe pelo aplicativo.
+L|Seu código de rastreio foi postado, acompanhe a encomenda no site dos Correios.
+L|Sua fatura do cartão fechou e vence no dia 10. O boleto está disponível no aplicativo do banco.
+L|Promoção de aniversário: use o cupom NIVER10 e ganhe 10% de desconto na sua próxima compra no app.
+L|Lembrete: sua consulta é amanhã às 15h. Responda 1 para confirmar ou 2 para remarcar.
+L|Sua compra foi aprovada. O pagamento no cartão de crédito foi confirmado, obrigado por comprar conosco!
+L|Mãe, chego em casa às 19h, não precisa esperar para jantar.
+L|Me manda o Pix do almoço? Deu 45 para cada um, dividimos em três.
+L|Pagamento realizado com sucesso na maquininha. Comprovante enviado para o seu e-mail.
+L|Seu entregador João está chegando. O pagamento já foi feito pelo aplicativo, não precisa pagar nada na entrega.
+L|Parabéns pelo aniversário! Muita saúde e felicidade, um grande abraço.
+L|O que você quer ganhar de presente de aniversário? Estou pensando em algo para a sua casa nova.
+L|Comprei um presente para o João, vou entregar a ele amanhã na festa.
+L|A reunião foi remarcada para hoje às 10h na sala 3.
+L|Seu código de verificação é 482913. Não compartilhe com ninguém.
+L|A taxa de condomínio deste mês vence dia 5. O boleto segue em anexo.
+L|Frete grátis em compras acima de R$ 99. Aproveite as ofertas da semana no nosso site oficial.
+L|O resultado do sorteio será divulgado no site oficial da empresa na sexta-feira.
+L|Sua fatura está disponível no aplicativo. O pagamento mínimo é de R$ 120,00.
+L|Estou chegando aí com a maquininha, pode pagar no cartão de débito? O valor é o mesmo do pedido que você fez pelo telefone.
+L|Boa tarde, seu pedido de pizza já está a caminho, previsão de 30 minutos.
+L|Oi, tudo bem? Pode me mandar o relatório até o fim do dia?
+L|Vamos jogar bola no sábado? O pessoal já confirmou.
+L|Lembrete de vencimento: sua conta de luz vence amanhã. Pague pelo aplicativo do banco ou em casas lotéricas.
+L|O professor avisou que a prova será na próxima quinta-feira, estudem os capítulos 3 e 4.
+L|Obrigado pela compra! Sua nota fiscal foi enviada por e-mail.
+L|Seu pacote foi entregue na portaria às 16h40. Retirado por Maria.
+L|Feliz natal! Que o próximo ano seja cheio de conquistas para você e sua família.
+L|Preciso que você assine o contrato até sexta, mando o link do documento pelo e-mail corporativo.
+L|Oi amor, passei no mercado e comprei o presente da sua mãe, depois te mostro.
+L|Seu cartão de crédito foi aprovado! A entrega do cartão será feita pelos Correios em até dez dias úteis.
+L|Atenção: manutenção programada no sistema hoje à noite. O acesso volta às 6h.
+L|A loja informa que o produto que você reservou chegou. Retire em até 3 dias com um documento com foto.
+L|Quer dividir o uber para o aeroporto? Sai uns 30 reais para cada.
+L|Tenho aula agora, depois te ligo.
+L|Foi só um susto, já passou, estou bem. Obrigado por perguntar.
+L|O boleto da mensalidade da escola foi gerado, vencimento no dia 15.
+L|Chegou a sua encomenda no ponto de retirada. Apresente o código de retirada que enviamos por e-mail.
+L|Lembre de levar a identidade e o comprovante de residência amanhã.
+L|Vou passar aí hoje para pegar a chave, pode ser depois das 18h?
+L|O pagamento da sua assinatura foi renovado no cartão final 1234. Obrigado por continuar com a gente.
+L|Pessoal, a festa do fim de ano será no dia 20. Quem for levar sobremesa avisa aqui.
+L|Seu pedido foi cancelado a pedido seu e o valor será estornado em até 5 dias úteis.
+L|Ganhei um sorteio de ingressos na rádio, vou levar vocês no show.
+L|O entregador confirmou a entrega do seu pedido. Avalie sua experiência no aplicativo.
+L|Oi, aqui é do banco: ligamos apenas pelos canais oficiais, nunca pedimos senha por mensagem. Em caso de dúvida ligue para o número do verso do cartão.
+L|Compra aprovada no débito de R$ 32,90 em supermercado. Se não reconhece, fale com o banco pelo aplicativo.
+L|Bom dia! Segue a ata da reunião de ontem para vocês revisarem.
+L|Cuidado com golpes: nunca pague taxa para receber prêmio ou presente que você não pediu.
+L|A prefeitura informa que a coleta de lixo será antecipada no feriado.
+L|Posso pagar o frete da mudança no Pix? Combinamos o valor por telefone.
+L|Estou com saudade, vamos marcar um café esta semana?
+L|Seu agendamento no salão está confirmado para sexta às 10h.
+L|Foi aprovado o pagamento do seu pedido. Previsão de entrega em 5 dias úteis, acompanhe pelo site oficial.
+L|Gabriel, preciso do código do projeto para atualizar o repositório hoje.
+L|Os convites chegaram! Passa aqui depois do trabalho para pegar o seu.
+L|A promoção de dia das mães da loja começa hoje, com descontos em perfumes e cosméticos. Confira no site oficial.
