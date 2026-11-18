@@ -1,0 +1,55 @@
+/* Design tokens: cores, tipografia, espaçamentos e sombras.
+   Altere aqui para mudar a identidade visual inteira. */
+:root {
+  /* Marca */
+  --brand: #CC092F;
+  --brand-700: #A30725;
+  --brand-900: #6E0418;
+  --brand-50: #FDEDF0;
+  --brand-100: #F9D3DB;
+  --brand-grad: linear-gradient(135deg, #E4173E 0%, #CC092F 45%, #8E0520 100%);
+
+  /* Neutros */
+  --ink: #16191D;
+  --ink-2: #3D434B;
+  --muted: #6A717B;
+  --line: #E6E8EC;
+  --line-2: #D5D9DF;
+  --bg: #F4F5F7;
+  --surface: #FFFFFF;
+  --surface-2: #FAFBFC;
+
+  /* Estados de risco */
+  --alto: #CC092F;
+  --alto-bg: #FDEDF0;
+  --medio: #9A5B00;
+  --medio-bg: #FFF4DC;
+  --medio-bar: #E8A21A;
+  --baixo: #1E6B3A;
+  --baixo-bg: #E7F5EC;
+  --neutro: #4A515B;
+  --neutro-bg: #EEF0F3;
+
+  /* Tipografia */
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 22px;
+  --fs-2xl: 26px;
+
+  /* Forma */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --shadow-1: 0 1px 2px rgba(16, 24, 40, .05);
+  --shadow-2: 0 4px 16px rgba(16, 24, 40, .08);
+  --shadow-3: 0 18px 48px rgba(16, 24, 40, .18);
+
+  /* Layout */
+  --topbar-h: 64px;
+  --nav-w: 248px;
+  --gap: 16px;
+  --pad: 24px;
+}

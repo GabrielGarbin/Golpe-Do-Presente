@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#CC092F">
+  <title>Bradesco · Proteção contra o Golpe do Presente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/app.css">
+  <!-- Endereço da API (back-end). Único ponto de ligação entre front e back. -->
+  <script src="config.js"></script>
+  <script type="module" src="js/main.js"></script>
+</head>
+
+<body>
+  <a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+  <!-- ===================== Cabeçalho ===================== -->
+  <header class="topbar">
+    <a class="brand" href="#/painel" aria-label="Início">
+      <img class="brand-logo" src="assets/logo-bradesco.png" alt="Bradesco"
+        onerror="this.hidden=true;this.nextElementSibling.hidden=false">
+      <span class="brand-fallback" hidden>Bradesco</span>
+      <span class="brand-sep" aria-hidden="true"></span>
+      <span class="brand-prod">Proteção contra golpes<small class="admin-only">Golpe do Presente</small></span>
+    </a>
+
+    <div class="topbar-right">
+      <span class="api-status admin-only" id="apiStatus" data-state="checking" title="Conexão com a API">
+        <i aria-hidden="true"></i><span>Conectando…</span>
+      </span>
+      <button class="profile" id="btnPerfil" type="button" aria-haspopup="dialog">
+        <span class="avatar" id="avatar" aria-hidden="true">?</span>
+        <span class="profile-txt"><b id="perfilNome">Entrar</b><small id="perfilSub">Escolha um cliente</small></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===================== Navegação ===================== -->
+  <nav class="sidenav" aria-label="Principal">
+    <p class="nav-group">Visão geral</p>
+    <a data-nav="painel" href="#/painel"><i data-icon="grid"></i>Painel</a>
+    <p class="nav-group">Verificar</p>
+    <a data-nav="consultar" href="#/consultar"><i data-icon="phone"></i>Consultar número</a>
+    <a data-nav="mensagem" href="#/mensagem"><i data-icon="message"></i>Analisar mensagem</a>
+    <a data-nav="cnpj" href="#/cnpj"><i data-icon="building"></i>Verificar loja (CNPJ)</a>
+    <a data-nav="assistente" href="#/assistente"><i data-icon="gift"></i>Posso receber?</a>
+    <p class="nav-group">Agir</p>
+    <a data-nav="denunciar" href="#/denunciar"><i data-icon="flag"></i>Denunciar golpe</a>
+    <a data-nav="orientacoes" href="#/orientacoes"><i data-icon="shield"></i>Orientações</a>
+
+    <div class="nav-foot">
+      <span class="tag">Protótipo acadêmico · A3</span>
+      <p>Projeto de estudantes. Não é um canal oficial do banco: em caso de golpe, ligue para o número no verso do
+        cartão.</p>
+    </div>
+  </nav>
+
+  <!-- ===================== Conteúdo ===================== -->
+  <main id="conteudo" tabindex="-1">
+
+    <!-- ---------- PAINEL ---------- -->
+    <section class="view v-painel" id="v-painel" aria-labelledby="t-painel">
+      <div class="view-head">
+        <div>
+          <h1 id="t-painel">Painel de prevenção</h1>
+          <p class="sub admin-only">Base colaborativa de denúncias do Golpe do Presente, atualizada em tempo real.</p>
+        </div>
+        <form class="quick" id="fQuick" role="search">
+          <label class="sr" for="qNum">Consultar número com DDD</label>
+          <i data-icon="search"></i>
+          <input id="qNum" data-mask="tel" inputmode="tel" placeholder="Consultar número com DDD" autocomplete="off">
+          <button class="btn">Consultar</button>
+        </form>
+      </div>
+
+      <div class="kpis" id="kpis">
+        <div class="kpi"><span class="kpi-ic"><i data-icon="flag"></i></span><div><b data-k="totalDenuncias">–</b><span>Denúncias registradas</span></div></div>
+        <div class="kpi"><span class="kpi-ic"><i data-icon="phone"></i></span><div><b data-k="numerosDenunciados">–</b><span>Números denunciados</span></div></div>
+        <div class="kpi kpi-red"><span class="kpi-ic"><i data-icon="alert"></i></span><div><b data-k="numerosNaBlacklist">–</b><span data-k-sub="blacklist">Confirmados na blacklist</span></div></div>
+        <div class="kpi admin-only"><span class="kpi-ic"><i data-icon="layers"></i></span><div><b data-k="camadas">–</b><span data-k-sub="camadas">Camadas de análise ativas</span></div></div>
+      </div>
+
+      <div class="painel-grid">
+        <article class="card">
+          <header class="card-h"><h2>Alertas recentes</h2><a class="link" href="#/consultar">Consultar outro</a></header>
+          <div class="card-b scroll" id="alertas" aria-live="polite"></div>
+        </article>
+
+        <article class="card">
+          <header class="card-h"><h2>Denúncias por canal</h2></header>
+          <div class="card-b" id="canais"></div>
+          <header class="card-h card-h2"><h2>Lojas mais imitadas</h2></header>
+          <div class="card-b scroll" id="lojas"></div>
+        </article>
+
+        <article class="card card-steps">
+          <header class="card-h"><h2>Como o golpe funciona</h2><a class="link" href="#/orientacoes?aba=teste">Faça o teste</a></header>
+          <ol class="steps">
+            <li><b>A isca</b><span>Mensagem diz que você ganhou um brinde ou presente de uma loja conhecida.</span></li>
+            <li><b>A “taxa”</b><span>O entregador pede uma pequena taxa de entrega na maquininha.</span></li>
+            <li><b>A fraude</b><span>O visor mostra um valor, mas a cobrança real é muito maior.</span></li>
+          </ol>
+          <div class="admin-only">
+            <header class="card-h card-h2"><h2>Camadas de análise</h2></header>
+            <ul class="layers" id="camadas"></ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ---------- CONSULTAR NÚMERO ---------- -->
+    <section class="view tool" id="v-consultar" hidden aria-labelledby="t-consultar">
+      <div class="view-head">
+        <div>
+          <h1 id="t-consultar">Consultar número</h1>
+          <p class="sub">Veja se o telefone que entrou em contato já foi denunciado por outras pessoas.</p>
+        </div>
+      </div>
+      <div class="tool-grid">
+        <form class="card form" id="fConsultar" novalidate>
+          <div class="card-b">
+            <label for="cNum">Número com DDD</label>
+            <input id="cNum" data-mask="tel" inputmode="tel" placeholder="(11) 90000-0001" autocomplete="off">
+            <button class="btn btn-block">Consultar número</button>
+            <div class="hint"><i data-icon="info"></i><p>A ausência de denúncias <b>não</b> garante que o número seja
+                seguro. Confirme a promoção pelo canal oficial da loja.</p></div>
+          </div>
+        </form>
+        <article class="card result" id="rConsultar" aria-live="polite"></article>
+      </div>
+    </section>
+
+    <!-- ---------- ANALISAR MENSAGEM ---------- -->
+    <section class="view tool" id="v-mensagem" hidden aria-labelledby="t-mensagem">
+      <div class="view-head">
+        <div>
+          <h1 id="t-mensagem">Analisar mensagem</h1>
+          <p class="sub">Cole o aviso de brinde ou presente e veja se ele tem os sinais do golpe.</p>
+        </div>
+      </div>
+      <div class="tool-grid">
+        <form class="card form" id="fMensagem" novalidate>
+          <div class="card-b">
+            <label for="mTxt">Texto da mensagem</label>
+            <textarea id="mTxt" maxlength="1000" placeholder="Cole aqui a mensagem recebida"></textarea>
+            <div class="counter"><span id="mCnt">0</span>/1000</div>
+            <label for="mRem">Número de quem enviou <small>(opcional)</small></label>
+            <input id="mRem" data-mask="tel" inputmode="tel" placeholder="(11) 90000-0001" autocomplete="off">
+            <button class="btn btn-block">Analisar mensagem</button>
+            <button type="button" class="btn-text" id="mExemplo">Usar mensagem de exemplo</button>
+          </div>
+        </form>
+        <article class="card result" id="rMensagem" aria-live="polite"></article>
+      </div>
+    </section>
+
+    <!-- ---------- CNPJ ---------- -->
+    <section class="view tool" id="v-cnpj" hidden aria-labelledby="t-cnpj">
+      <div class="view-head">
+        <div>
+          <h1 id="t-cnpj">Verificar loja pelo CNPJ</h1>
+          <p class="sub">Confira na Receita Federal se a empresa existe, está ativa e há quanto tempo foi aberta.</p>
+        </div>
+      </div>
+      <div class="tool-grid">
+        <form class="card form" id="fCnpj" novalidate>
+          <div class="card-b">
+            <label for="jNum">CNPJ da loja</label>
+            <input id="jNum" data-mask="cnpj" inputmode="numeric" placeholder="00.000.000/0001-00" autocomplete="off">
+            <button class="btn btn-block">Verificar CNPJ</button>
+            <div class="hint"><i data-icon="info"></i><p>Golpistas também usam CNPJ de empresas reais. O CNPJ ativo é
+                apenas um indício, não uma prova.</p></div>
+          </div>
+        </form>
+        <article class="card result" id="rCnpj" aria-live="polite"></article>
+      </div>
+    </section>
+
+    <!-- ---------- ASSISTENTE DE ENTREGA ---------- -->
+    <section class="view tool" id="v-assistente" hidden aria-labelledby="t-assistente">
+      <div class="view-head">
+        <div>
+          <h1 id="t-assistente">Posso receber esse presente?</h1>
+          <p class="sub">Responda 4 perguntas rápidas antes de abrir a porta ou de pegar o cartão.</p>
+        </div>
+      </div>
+      <div class="tool-grid">
+        <form class="card form" id="fAssistente" novalidate>
+          <div class="card-b asks" id="asks"></div>
+        </form>
+        <article class="card result" id="rAssistente" aria-live="polite"></article>
+      </div>
+    </section>
+
+    <!-- ---------- DENUNCIAR ---------- -->
+    <section class="view tool" id="v-denunciar" hidden aria-labelledby="t-denunciar">
+      <div class="view-head">
+        <div>
+          <h1 id="t-denunciar">Denunciar golpe</h1>
+          <p class="sub">Sua denúncia alimenta a base colaborativa e protege outras pessoas.</p>
+        </div>
+      </div>
+      <div class="tool-grid tool-grid-den">
+        <form class="card form" id="fDenuncia" novalidate>
+          <div class="card-b">
+            <div class="fields">
+              <div><label for="dTel">Número do golpista</label><input id="dTel" data-mask="tel" inputmode="tel" placeholder="(11) 90000-0001" autocomplete="off"></div>
+              <div><label for="dCanal">Canal de contato</label>
+                <select id="dCanal">
+                  <option value="WHATSAPP">WhatsApp</option>
+                  <option value="SMS">SMS</option>
+                  <option value="LIGACAO">Ligação</option>
+                  <option value="ENTREGADOR_PRESENCIAL">Entregador presencial</option>
+                  <option value="OUTRO">Outro</option>
+                </select></div>
+              <div class="span2"><label for="dLoja">Loja imitada</label><input id="dLoja" placeholder="Ex.: Floricultura Bela Flor"></div>
+              <div><label for="dVa">Valor anunciado</label><div class="money"><span>R$</span><input id="dVa" data-mask="money" inputmode="decimal" placeholder="0,00"></div></div>
+              <div><label for="dVc">Valor cobrado</label><div class="money"><span>R$</span><input id="dVc" data-mask="money" inputmode="decimal" placeholder="0,00"></div></div>
+              <div class="span2" id="dDiff" aria-live="polite"></div>
+              <div class="span2"><label for="dDesc">O que aconteceu</label><textarea id="dDesc" maxlength="500" placeholder="Conte como foi o contato, o que foi pedido e como você pagou."></textarea>
+                <div class="counter"><span id="dCnt">0</span>/500</div></div>
+            </div>
+            <div class="form-foot">
+              <p class="who" id="dWho"></p>
+              <button class="btn">Enviar denúncia</button>
+            </div>
+            <div id="dMsg" aria-live="polite"></div>
+          </div>
+        </form>
+        <aside class="card">
+          <header class="card-h"><h2>Já caiu no golpe? Faça agora</h2></header>
+          <ol class="r-list aside-list" id="dPagou">
+            <li>Ligue para o banco (número no verso do cartão) e peça o bloqueio e a contestação da compra.</li>
+            <li>Registre um boletim de ocorrência e guarde mensagens, prints e o número.</li>
+            <li>Denuncie aqui para alertar outras pessoas.</li>
+          </ol>
+          <header class="card-h card-h2"><h2>Como a confirmação funciona</h2></header>
+          <p class="card-p" id="dRegra">Quando pessoas diferentes denunciam o mesmo número, ele passa a ser
+            <b>confirmado</b> e entra na blacklist.</p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ---------- ORIENTAÇÕES ---------- -->
+    <section class="view" id="v-orientacoes" hidden aria-labelledby="t-orientacoes">
+      <div class="view-head">
+        <div>
+          <h1 id="t-orientacoes">Orientações de segurança</h1>
+          <p class="sub">O que fazer antes, durante e depois da entrega de um “presente”.</p>
+        </div>
+        <div class="seg" role="tablist" aria-label="Conteúdo educativo">
+          <button role="tab" id="tabGuia" aria-selected="true" aria-controls="guia">O que fazer</button>
+          <button role="tab" id="tabQuiz" aria-selected="false" aria-controls="quiz">Teste seus conhecimentos</button>
+        </div>
+      </div>
+      <div class="guide" id="guia" role="tabpanel" aria-labelledby="tabGuia" aria-live="polite"></div>
+      <div class="quiz" id="quiz" role="tabpanel" aria-labelledby="tabQuiz" hidden>
+        <div class="quiz-top">
+          <p><b>Golpe ou não?</b> Leia cada situação e escolha. Você descobre na hora o porquê.</p>
+          <span class="quiz-score" id="quizScore">0 de 4 respondidas</span>
+          <button type="button" class="btn-ghost" id="quizReset" hidden>Refazer teste</button>
+        </div>
+        <div class="quiz-grid" id="quizGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== Diálogos ===================== -->
+  <dialog id="dlgPerfil" aria-labelledby="t-perfil">
+    <form method="dialog" class="dlg">
+      <h2 id="t-perfil">Quem está denunciando?</h2>
+      <p class="sub">Protótipo: escolha um cliente cadastrado, sem senha.</p>
+      <label for="selCli">Cliente</label>
+      <select id="selCli"></select>
+      <div id="perfilMsg"></div>
+      <div class="dlg-acts">
+        <button type="button" class="btn-ghost" id="btnSair">Sair</button>
+        <button value="cancel" class="btn-ghost">Cancelar</button>
+        <button type="button" class="btn" id="btnEntrar">Entrar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+</body>
+
+</html>

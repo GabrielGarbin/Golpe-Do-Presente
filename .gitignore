@@ -31,3 +31,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Segredos e Supabase CLI ###
+.env
+supabase/.temp/
+supabase/.branches/
+
+### Configuração local com senhas (backend/config/application.properties) ###
+config/
+backend/config/

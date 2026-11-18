@@ -3,19 +3,123 @@
 Protótipo que ajuda a pessoa a **prevenir** o Golpe do Presente (brinde falso + cobrança
 inflada na maquininha) e a **denunciar** os golpistas, alimentando uma base colaborativa.
 
-- **Back-end:** Spring Boot (Java), dados em memória.
-- **Front-end:** `index.html` (HTML/CSS/JS puro). Cópia servida pelo Spring em `src/main/resources/static/`.
-  Se editar um, copie para o outro.
+- **Back-end:** Spring Boot (Java) + Spring Data JPA, na pasta `backend/`. Só expõe a API REST (JSON).
+- **Banco de dados:** Supabase (PostgreSQL), projeto `dieflaymwtpupagshxyz`.
+- **Front-end:** HTML/CSS/JavaScript (módulos ES, sem build), na pasta `frontend/`.
+
+## Arquitetura: front e back separados
+
+```
+Golpe-Do-Presente/
+├── backend/                 API REST (Spring Boot) - porta 8081
+│   ├── src/main/java/...    controllers, services, análise, repositórios
+│   ├── supabase/migrations/ esquema do banco
+│   └── demonstracao.http    roteiro de chamadas da API
+└── frontend/                Interface (qualquer servidor de arquivos estáticos)
+    ├── index.html           estrutura das telas
+    ├── config.js            ÚNICO ponto de ligação com o back (API_URL)
+    ├── css/tokens.css       cores, fontes, espaçamentos (identidade visual)
+    ├── css/app.css          layout e componentes
+    ├── assets/              logo do Bradesco (ver assets/LEIA-ME.md)
+    └── js/
+        ├── api.js           contrato com a API: todas as URLs ficam aqui
+        ├── router.js        navegação por abas (#/painel, #/consultar...)
+        ├── session.js       cliente escolhido (protótipo, sem senha)
+        ├── ui/resultado.js  componente de resultado de risco
+        └── views/           uma tela por arquivo
+```
+
+- Os dois lados **só conversam por HTTP/JSON**. O back não serve mais o HTML e o front não
+  conhece nada do Java: dá para alterar, publicar ou substituir um sem tocar no outro.
+- Se um endpoint mudar, ajuste apenas `frontend/js/api.js`. Para apontar o front para outra API,
+  altere `frontend/config.js` (ou abra a página com `?api=http://IP:8081`; `?api=padrao` volta ao valor do arquivo).
+- CORS: a API aceita as origens de `app.cors.origens` (`application.properties`). No protótipo é `*`;
+  ao publicar, informe o endereço real do front.
+
+### Requisições em paralelo no front
+
+- O **Painel** dispara as 4 consultas (estatísticas, golpistas, denúncias, camadas) ao mesmo tempo, e
+  cada bloco aparece assim que a sua resposta chega. Se uma falhar, só aquele bloco mostra erro.
+- **Consultar número** busca o risco e o histórico do número em paralelo (`Promise.all`).
+- Toda requisição tem **tempo limite** e é **cancelável** (`AbortController`): se a pessoa consultar de novo
+  antes da resposta, a consulta antiga é cancelada e não sobrescreve a nova ("a última vence").
+- Respostas que quase não mudam (checklist, camadas) ficam em cache durante a sessão.
+
+## Interface
+
+Layout de aplicação (cabeçalho + menu lateral + abas). No computador, **cada aba cabe inteira na
+tela, sem rolar a página** (testado em 1366×768 e 1920×1080); listas longas rolam dentro do próprio
+card. No celular o menu vira uma barra de abas e o conteúdo empilha.
+
+| Aba | O que mostra |
+|-----|--------------|
+| Painel | Indicadores, alertas recentes, denúncias por canal, lojas mais imitadas, como o golpe funciona, camadas ativas |
+| Consultar número | Risco do número + histórico de denúncias |
+| Analisar mensagem | Nota de risco, confiança, fontes, motivos e recomendações |
+| Verificar loja (CNPJ) | Situação na Receita Federal |
+| Posso receber? | Assistente de prevenção: 4 perguntas de sim/não e uma recomendação clara (funciona sem depender da base) |
+| Denunciar golpe | Formulário da base colaborativa; para quem já pagou, compara o valor anunciado com o cobrado e mostra o que fazer |
+| Orientações | Checklist (antes, na hora da entrega e se já pagou) + teste interativo "Golpe ou não?" |
+
+> O logo é carregado de `frontend/assets/logo-bradesco.svg` (não incluído: use o arquivo oficial,
+> ver `assets/LEIA-ME.md`). A interface traz o aviso "Protótipo acadêmico · A3" para deixar claro
+> que não é um canal oficial do banco.
+
+## Banco de dados (Supabase)
+
+Clientes, golpistas e denúncias ficam salvos no PostgreSQL do Supabase. O esquema está em
+`supabase/migrations/` (tabelas `clientes`, `golpistas`, `denuncias`, com RLS ligado).
+
+**1. Criar as tabelas (uma vez)** — com a [Supabase CLI](https://supabase.com/docs/guides/cli):
+
+```bash
+cd backend
+supabase login
+supabase init                                   # cria supabase/config.toml (mantém a pasta migrations)
+supabase link --project-ref dieflaymwtpupagshxyz
+supabase db push                                # aplica supabase/migrations/*.sql
+```
+
+Sem a CLI: abra o **SQL Editor** do painel do Supabase e execute
+os arquivos de `backend/supabase/migrations/`, em ordem.
+
+**2. Informar a conexão à API (uma vez por computador)** — crie o arquivo
+`backend/config/application.properties` (ele está no `.gitignore` e **nunca** vai para o GitHub):
+
+```properties
+spring.datasource.url=jdbc:postgresql://aws-1-us-west-2.pooler.supabase.com:5432/postgres?sslmode=require
+spring.datasource.username=postgres.dieflaymwtpupagshxyz
+spring.datasource.password=SENHA_DO_BANCO
+```
+
+O endereço vem do Supabase em **Connect → Direct → Session pooler**; a senha, de
+**Project Settings → Database → Database password**. O Spring Boot lê esse arquivo sozinho quando
+a API é iniciada dentro da pasta `backend`. (Alternativa: as variáveis `SUPABASE_DB_URL`,
+`SUPABASE_DB_USER` e `SUPABASE_DB_PASSWORD` em `backend/.env`.)
+
+> Nunca escreva senhas ou chaves em `src/main/resources/application.properties`: esse arquivo vai para o GitHub.
+
+Os dados de demonstração só são inseridos quando o banco está vazio (primeira execução).
+Para não inseri-los, use `app.demo.seed=false`.
 
 ## Como rodar
 
+São dois processos independentes (dois terminais):
+
 ```bash
-./mvnw spring-boot:run        # sobe em http://localhost:8080 (com dados de demonstração)
-./mvnw test                   # testes unitários
+# 1) Back-end (API) - http://localhost:8081
+cd backend
+./mvnw spring-boot:run        # Windows: mvnw.cmd spring-boot:run
+./mvnw test                   # testes (usam H2 em memória, não tocam no Supabase)
+
+# 2) Front-end - http://localhost:5500
+cd frontend
+python -m http.server 5500    # ou: npx serve -l 5500   ou a extensão "Live Server" do VS Code
 ```
 
-Abra `http://localhost:8080` ou o `index.html`. Para apontar o front para outra API:
-`index.html?api=http://IP:8080`. Roteiro de chamadas prontas em `demonstracao.http`.
+Abra `http://localhost:5500`. O selo **"API conectada"** no cabeçalho confirma a comunicação.
+O front precisa ser aberto por um servidor (não com duplo clique no arquivo), porque usa módulos JavaScript.
+Roteiro de chamadas prontas da API em `backend/demonstracao.http`.
 
 ## Problema da "partida a frio" (feedback da orientadora)
 
@@ -73,7 +177,7 @@ o sistema continua só com as camadas locais. Para outro provedor, implemente `A
 
 ## Como melhorar o classificador
 
-Edite `src/main/resources/analise/corpus.txt` (formato `G|texto` para golpe, `L|texto` para
+Edite `backend/src/main/resources/analise/corpus.txt` (formato `G|texto` para golpe, `L|texto` para
 mensagem legítima). Prefira mensagens reais, anonimizadas. Misture exemplos legítimos parecidos
 com golpe (avisos de entrega, promoções com "taxa de entrega grátis") para reduzir falsos alertas.
 
@@ -84,5 +188,6 @@ com golpe (avisos de entrega, promoções com "taxa de entrega grátis") para re
 - Um resultado BAIXO **nunca** garante segurança; toda resposta traz recomendações.
 - A consulta de CNPJ usa a BrasilAPI (serviço gratuito de terceiros, sem garantia de
   disponibilidade). Golpistas também usam CNPJ de empresas reais; o CNPJ é só um indício.
-- Os dados ficam em memória e se perdem ao reiniciar. Persistência em banco é a evolução natural.
+- Os dados ficam no Supabase. O classificador local continua em memória, mas é re-treinado
+  ao iniciar com os relatos de números CONFIRMADOS salvos no banco.
 - A cota da IA também fica em memória e zera ao reiniciar.
