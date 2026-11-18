@@ -17,6 +17,9 @@ const P = {
   clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
   gift: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
   check: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/>',
+  access: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="7" r="1.4"/><path d="M7 9.5l5 1 5-1M12 10.5v4M9.5 18.5 12 14.5l2.5 4"/>',
+  volume: '<path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
+  stop: '<rect x="6" y="6" width="12" height="12" rx="2"/>',
   inbox: '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>'
 };
 

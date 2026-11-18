@@ -61,6 +61,18 @@ card. No celular o menu vira uma barra de abas e o conteúdo empilha.
 | Denunciar golpe | Formulário da base colaborativa; para quem já pagou, compara o valor anunciado com o cobrado e mostra o que fazer |
 | Orientações | Checklist (antes, na hora da entrega e se já pagou) + teste interativo "Golpe ou não?" |
 
+### Acessibilidade
+
+Botão **Acessibilidade** no cabeçalho (as escolhas ficam salvas no navegador):
+
+- **Tamanho do texto** de 100% a 145% (com texto grande, a área de conteúdo passa a rolar).
+- **Alto contraste**: texto preto, bordas fortes e foco destacado em amarelo.
+- **Ouvir**: cada resultado tem um botão que lê em voz alta o risco e o que fazer
+  (Web Speech API do próprio navegador, sem serviço externo).
+- **VLibras**: tradutor oficial do governo para Libras (precisa de internet; pode ser desligado).
+- Base: rótulos em todos os campos, resultados anunciados a leitores de tela, navegação por teclado
+  com foco visível, risco sempre escrito (nunca só pela cor) e respeito a "reduzir movimento".
+
 > O logo é carregado de `frontend/assets/logo-bradesco.svg` (não incluído: use o arquivo oficial,
 > ver `assets/LEIA-ME.md`). A interface traz o aviso "Protótipo acadêmico · A3" para deixar claro
 > que não é um canal oficial do banco.

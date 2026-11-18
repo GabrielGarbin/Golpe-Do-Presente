@@ -3,6 +3,7 @@ import { Api } from './api.js';
 import { $, bindMasks } from './util.js';
 import { paintIcons } from './icons.js';
 import { initSession } from './session.js';
+import { initAcessibilidade } from './acessibilidade.js';
 import { registrar, iniciarRotas } from './router.js';
 
 import * as painel from './views/painel.js';
@@ -31,6 +32,7 @@ async function verificarApi() {
 paintIcons();
 bindMasks();
 initSession();
+initAcessibilidade();
 
 registrar('painel', painel);
 registrar('consultar', consultar);

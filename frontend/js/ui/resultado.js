@@ -47,7 +47,9 @@ export function cabecalho({ tom, selo, titulo, texto, medidor }) {
       <h3>${esc(titulo)}</h3>
       <p>${esc(texto)}</p>
     </div>
-    ${medidor ?? ''}
+    <div class="r-side">${medidor ?? ''}
+      <button type="button" class="ouvir" data-ouvir aria-label="Ouvir este resultado em voz alta">${icon('volume')}<span>Ouvir</span></button>
+    </div>
   </div>`;
 }
 

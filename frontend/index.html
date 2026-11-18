@@ -33,6 +33,34 @@
       <span class="api-status admin-only" id="apiStatus" data-state="checking" title="Conexão com a API">
         <i aria-hidden="true"></i><span>Conectando…</span>
       </span>
+      <div class="a11y">
+        <button class="a11y-btn" id="btnA11y" type="button" aria-expanded="false" aria-controls="a11yPanel"
+          title="Acessibilidade"><i data-icon="access"></i><span>Acessibilidade</span></button>
+        <div class="a11y-panel" id="a11yPanel" role="dialog" aria-label="Opções de acessibilidade" hidden>
+          <p class="a11y-title">Acessibilidade</p>
+          <div class="a11y-row">
+            <span id="lblFonte">Tamanho do texto</span>
+            <div class="a11y-size" role="group" aria-labelledby="lblFonte">
+              <button type="button" id="fonteMenos" aria-label="Diminuir texto">A−</button>
+              <output id="fonteValor" aria-live="polite">100%</output>
+              <button type="button" id="fonteMais" aria-label="Aumentar texto">A+</button>
+            </div>
+          </div>
+          <div class="a11y-row">
+            <span id="lblContraste">Alto contraste</span>
+            <button type="button" class="switch" role="switch" id="swContraste" aria-checked="false" aria-labelledby="lblContraste"></button>
+          </div>
+          <div class="a11y-row">
+            <span id="lblVoz">Botão “Ouvir” nos resultados</span>
+            <button type="button" class="switch" role="switch" id="swVoz" aria-checked="true" aria-labelledby="lblVoz"></button>
+          </div>
+          <div class="a11y-row">
+            <span id="lblLibras">Tradutor de Libras (VLibras)</span>
+            <button type="button" class="switch" role="switch" id="swLibras" aria-checked="true" aria-labelledby="lblLibras"></button>
+          </div>
+          <button type="button" class="btn-text" id="a11yReset">Restaurar padrão</button>
+        </div>
+      </div>
       <button class="profile" id="btnPerfil" type="button" aria-haspopup="dialog">
         <span class="avatar" id="avatar" aria-hidden="true">?</span>
         <span class="profile-txt"><b id="perfilNome">Entrar</b><small id="perfilSub">Escolha um cliente</small></span>
@@ -287,6 +315,16 @@
   </dialog>
 
   <div class="toast" id="toast" role="status" hidden></div>
+
+  <!-- VLibras: tradutor oficial de Português para Libras (governo federal). Precisa de internet. -->
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>if (window.VLibras) new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
 </body>
 
 </html>

@@ -83,6 +83,68 @@ i[data-icon] svg { width: 100%; height: 100%; }
 .profile-txt b { font-size: var(--fs-sm); }
 .profile-txt small { font-size: 11px; opacity: .85; }
 
+/* ======================= Acessibilidade ======================= */
+.a11y { position: relative; }
+.a11y-btn {
+  display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, .3); background: rgba(255, 255, 255, .12); color: #fff;
+  font-weight: 600; font-size: var(--fs-sm); cursor: pointer;
+}
+.a11y-btn:hover, .a11y-btn[aria-expanded="true"] { background: rgba(255, 255, 255, .24); }
+.a11y-panel {
+  position: absolute; right: 0; top: calc(100% + 10px); z-index: 40; width: 320px;
+  background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r-lg);
+  box-shadow: var(--shadow-3); padding: 14px 16px 10px;
+}
+.a11y-title { margin: 0 0 6px; font-weight: 700; font-size: var(--fs-lg); }
+.a11y-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: var(--fs-sm); font-weight: 500; }
+.a11y-size { display: flex; align-items: center; gap: 4px; }
+.a11y-size button { width: 38px; height: 34px; border-radius: var(--r-sm); border: 1px solid var(--line-2); background: var(--surface); font-weight: 700; cursor: pointer; }
+.a11y-size button:disabled { opacity: .4; cursor: default; }
+.a11y-size output { min-width: 48px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.a11y-panel .btn-text { padding: 8px 0 2px; }
+.switch { position: relative; flex: none; width: 46px; height: 26px; border-radius: 99px; border: 0; background: var(--line-2); cursor: pointer; transition: background .15s; }
+.switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: var(--shadow-1); transition: transform .15s; }
+.switch[aria-checked="true"] { background: var(--brand); }
+.switch[aria-checked="true"]::after { transform: translateX(20px); }
+
+/* Botão "Ouvir" nos resultados */
+.r-side { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: none; }
+.ouvir {
+  display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 99px;
+  border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); font-weight: 600; font-size: var(--fs-xs); cursor: pointer;
+}
+.ouvir svg { width: 14px; height: 14px; }
+.ouvir:hover { border-color: var(--brand); color: var(--brand); }
+.ouvir.falando { background: var(--brand); border-color: var(--brand); color: #fff; }
+body.sem-voz .ouvir { display: none; }
+
+/* VLibras desligado pelo usuário */
+body.sem-libras [vw] { display: none !important; }
+
+/* Texto maior: amplia o conteúdo e, se precisar, a área rola */
+body.texto-grande main { zoom: var(--escala, 1); overflow-y: auto; }
+body.texto-grande main .view { height: auto; min-height: 100%; }
+body.texto-grande dialog { zoom: var(--escala, 1); }
+
+/* Alto contraste */
+body.alto-contraste {
+  --ink: #000000; --ink-2: #000000; --muted: #1F1F1F; --line: #4D4D4D; --line-2: #1F1F1F;
+  --bg: #FFFFFF; --surface-2: #FFFFFF; --brand: #A0001E; --brand-700: #75001A; --brand-50: #FFE5EA;
+  --alto: #A0001E; --medio: #5A3500; --medio-bar: #8A5300; --baixo: #0A4A21; --neutro: #000000; --neutro-bg: #E3E3E3;
+  --brand-grad: #000000;
+}
+body.alto-contraste .topbar { background: #000; box-shadow: none; border-bottom: 3px solid #FFD400; }
+body.alto-contraste .card, body.alto-contraste .kpi, body.alto-contraste .q-card, body.alto-contraste .hint,
+body.alto-contraste input, body.alto-contraste select, body.alto-contraste textarea, body.alto-contraste .quick { border: 2px solid #000; box-shadow: none; }
+body.alto-contraste .sidenav { border-color: #000; }
+body.alto-contraste .sidenav a.on { background: #000; color: #fff; }
+body.alto-contraste .sidenav a.on i { color: #fff; }
+body.alto-contraste .badge, body.alto-contraste .chip { border: 1px solid currentColor; }
+body.alto-contraste .link, body.alto-contraste .btn-text { text-decoration: underline; }
+body.alto-contraste .r-head { background: #fff; }
+body.alto-contraste :focus-visible { outline: 3px solid #000; outline-offset: 2px; box-shadow: 0 0 0 6px #FFD400; }
+
 /* ======================= Menu lateral ======================= */
 .sidenav {
   background: var(--surface);
@@ -483,6 +545,12 @@ dialog::backdrop { background: rgba(22, 25, 29, .5); backdrop-filter: blur(2px);
   .api-status { padding: 7px; }
   .profile { padding: 2px; border: 0; background: none; }
   .avatar { width: 32px; height: 32px; font-size: 12px; }
+  .a11y { position: static; }
+  .a11y-btn { width: 36px; padding: 0; justify-content: center; }
+  .a11y-btn span { display: none; }
+  .a11y-panel { position: fixed; left: 10px; right: 10px; top: 62px; width: auto; }
+  .r-side { gap: 6px; }
+  .ouvir { height: 28px; padding: 0 10px; }
 
   /* Menu em abas roláveis */
   .sidenav {
