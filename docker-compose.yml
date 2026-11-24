@@ -1,0 +1,27 @@
+# Sobe o sistema completo (front + API) com um comando:   docker compose up --build
+# Depois abra http://localhost:5500
+#
+# Antes de rodar:
+#   1) backend/.env  com SUPABASE_DB_* (copie de backend/.env.example)
+#   2) .env (nesta pasta) com JWT_SECRET e, se quiser um admin, ADMINS_EMAIL (copie de .env.example)
+services:
+  backend:
+    build: ./backend
+    env_file: ./backend/.env          # senha do banco etc. (nunca vai para o Git)
+    environment:
+      PORT: "8081"
+      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET no arquivo .env desta pasta (mínimo 32 caracteres)}
+      ADMINS_EMAIL: ${ADMINS_EMAIL:-}
+      CORS_ORIGENS: ""                # front e API no mesmo domínio via proxy: sem CORS
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5500:80"
+    environment:
+      API_URL: /api
+      API_UPSTREAM: http://backend:8081
+    depends_on:
+      - backend
+    restart: unless-stopped
