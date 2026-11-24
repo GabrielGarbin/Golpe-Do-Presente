@@ -27,9 +27,17 @@ async function request(path, { method = 'GET', body, signal } = {}) {
 
   let resp;
   try {
+    const headers = {};
+    if (body) headers['Content-Type'] = 'application/json';
+    // O token fica salvo após o login e acompanha automaticamente as rotas protegidas.
+    try {
+      const token = localStorage.getItem('jwt');
+      if (token) headers.Authorization = `Bearer ${token}`;
+    } catch { /* navegador sem localStorage */ }
+
     resp = await fetch(API_URL + path, {
       method,
-      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      headers: Object.keys(headers).length ? headers : undefined,
       body: body ? JSON.stringify(body) : undefined,
       signal: ctrl.signal
     });
@@ -43,6 +51,13 @@ async function request(path, { method = 'GET', body, signal } = {}) {
   }
 
   const data = await resp.json().catch(() => null);
+  if (resp.status === 401 && !path.startsWith('/auth/login') && !path.startsWith('/auth/registro')) {
+    try {
+      localStorage.removeItem('jwt');
+      localStorage.removeItem('cli');
+      window.dispatchEvent(new Event('sessao-expirada'));
+    } catch { /* navegador sem localStorage */ }
+  }
   if (!resp.ok) throw new ApiError((data && (data.erro || data.message)) || `Erro ${resp.status} na API.`, resp.status);
   return data;
 }
@@ -64,6 +79,8 @@ export const Api = {
   camadas: () => cached('camadas', () => request('/prevencao/camadas')),
   estatisticas: () => request('/denuncias/estatisticas'),
   golpistas: () => request('/golpistas'),
+  // Lista pública: somente números confirmados, sem expor dados pessoais das denúncias.
+  blacklist: () => request('/golpistas/blacklist'),
   denuncias: () => request('/denuncias'),
 
   /* Prevenção */
@@ -73,8 +90,12 @@ export const Api = {
   cnpj: (numero, opt) => request('/prevencao/cnpj?numero=' + encodeURIComponent(numero), opt),
   checklist: () => cached('checklist', () => request('/prevencao/checklist')),
 
-  /* Denúncia e clientes */
-  clientes: () => request('/clientes'),
+  /* Autenticação */
+  login: dados => request('/auth/login', { method: 'POST', body: dados }),
+  registrar: dados => request('/auth/registro', { method: 'POST', body: dados }),
+  eu: () => request('/auth/eu'),
+
+  /* Denúncia */
   denunciar: payload => request('/denuncias', { method: 'POST', body: payload })
 };
 

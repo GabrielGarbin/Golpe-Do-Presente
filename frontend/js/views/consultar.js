@@ -22,7 +22,7 @@ async function consultar(numero) {
     // Paralelo: risco do número + histórico do golpista (se existir).
     const [r, golpistas] = await Promise.all([
       Api.telefone(numero, { signal }),
-      Api.golpistas().catch(() => [])
+      Api.blacklist().catch(() => [])
     ]);
     const g = golpistas.find(x => x.telefone === digits(numero));
     const stats = g ? `<div class="r-stats">

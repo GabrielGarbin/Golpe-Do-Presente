@@ -1,0 +1,8 @@
+target/
+.env
+config/
+.git
+.gitignore
+.mvn/wrapper/maven-wrapper.jar
+*.md
+demonstracao.http

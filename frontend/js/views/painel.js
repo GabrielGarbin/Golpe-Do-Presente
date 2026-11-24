@@ -57,28 +57,21 @@ function pintarCamadas(cam) {
     .map(k => `<li class="chip ${cam[k] ? 'on' : ''}" title="${cam[k] ? 'Ativa' : 'Desligada'}">${CAMADAS[k]}</li>`).join('');
 }
 
-function pintarAlertas(golpistas, denuncias) {
-  const ultimaPor = new Map();
-  [...denuncias]
-    .sort((a, b) => String(a.data || '').localeCompare(String(b.data || '')))
-    .forEach(d => ultimaPor.set(d.golpistaId, d));
-
+function pintarAlertas(golpistas) {
   const recentes = [...golpistas]
     .sort((a, b) => String(b.dataUltimaDenuncia || '').localeCompare(String(a.dataUltimaDenuncia || '')))
     .slice(0, 8);
 
   const el = $('#alertas');
-  if (!recentes.length) { el.innerHTML = '<p class="muted">Nenhum alerta ainda.</p>'; return; }
+  if (!recentes.length) { el.innerHTML = '<p class="muted">Nenhum número confirmado na blacklist ainda.</p>'; return; }
 
   el.innerHTML = recentes.map(g => {
-    const d = ultimaPor.get(g.id);
-    const alto = g.status === 'CONFIRMADO';
-    const info = [d?.estabelecimentoFalsificado || 'Número denunciado', CANAIS[d?.canal] || null, tempoAtras(g.dataUltimaDenuncia)]
+    const info = [plural(g.totalDenuncias, 'denúncia', 'denúncias'), tempoAtras(g.dataUltimaDenuncia)]
       .filter(Boolean).map(esc).join(' · ');
     return `<button class="alert-row" data-tel="${esc(g.telefone)}">
-      <span class="alert-ic ${alto ? 'alto' : ''}">${icon(alto ? 'alert' : 'phone')}</span>
+      <span class="alert-ic alto">${icon('alert')}</span>
       <span class="alert-txt"><b>${maskTel(g.telefone)}</b><small>${info}</small></span>
-      <span class="badge ${alto ? '' : 'medio'}">${alto ? 'Alto risco' : 'Atenção'}</span>
+      <span class="badge">Confirmado</span>
     </button>`;
   }).join('');
   $$('.alert-row', el).forEach(b => (b.onclick = () => ir('consultar', { numero: b.dataset.tel })));
@@ -88,14 +81,15 @@ async function carregar() {
   $('#alertas').innerHTML = carregandoTxt;
 
   const est = Api.estatisticas();
-  const golp = Api.golpistas();
-  const den = Api.denuncias();
+  // O painel público consulta apenas a blacklist pública (números confirmados).
+  // A lista completa e as denúncias individuais permanecem protegidas no backend.
+  const golp = Api.blacklist();
   const cam = Api.camadas();
 
   // Cada bloco reage à própria promessa (sem esperar as outras).
   est.then(pintarEstatisticas).catch(e => { $('#canais').innerHTML = erroBox(e); $('#lojas').innerHTML = ''; });
   cam.then(pintarCamadas).catch(e => { $('#camadas').innerHTML = `<li>${erroBox(e)}</li>`; });
-  Promise.all([golp, den]).then(([g, d]) => pintarAlertas(g, d)).catch(e => { $('#alertas').innerHTML = erroBox(e); });
+  golp.then(pintarAlertas).catch(e => { $('#alertas').innerHTML = erroBox(e); });
 }
 
 export function init() {

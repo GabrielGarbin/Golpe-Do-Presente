@@ -19,7 +19,5 @@ export const API_URL = (apiDaUrl() || cfg.API_URL || '').replace(/\/$/, '');
 export const TIMEOUT_MS = Number(cfg.TIMEOUT_MS) || 12000;
 export const LIMITE_SUSPEITA = Number(cfg.LIMITE_SUSPEITA) || 1.2;
 
-const normalizar = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
-const ADMINS = (cfg.ADMINS || []).map(normalizar);
-/** true se o cliente está na lista de administradores de config.js. */
-export const ehAdmin = cliente => !!cliente && ADMINS.includes(normalizar(cliente.nome));
+/** O perfil ADMIN vem do JWT validado pelo backend; o front não decide permissões por nome. */
+export const ehAdmin = cliente => !!cliente && cliente.perfil === 'ADMIN';

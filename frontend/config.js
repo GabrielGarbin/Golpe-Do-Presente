@@ -12,8 +12,5 @@ window.APP_CONFIG = {
   TIMEOUT_MS: 12000,
   /* Cobrado >= 1,2x o anunciado = cobrança suspeita. */
   LIMITE_SUSPEITA: 1.2,
-  /* Clientes que veem a visão técnica (status da API, camadas de análise).
-     Compara pelo nome, sem diferenciar maiúsculas/acentos. Os demais veem
-     a versão "de lançamento". Isto é só visual, não é controle de acesso. */
-  ADMINS: ['Ana Souza']
+  /* O perfil ADMIN é definido exclusivamente no backend por app.auth.admins-email. */
 };

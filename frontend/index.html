@@ -300,18 +300,46 @@
 
   <!-- ===================== Diálogos ===================== -->
   <dialog id="dlgPerfil" aria-labelledby="t-perfil">
-    <form method="dialog" class="dlg">
-      <h2 id="t-perfil">Quem está denunciando?</h2>
-      <p class="sub">Protótipo: escolha um cliente cadastrado, sem senha.</p>
-      <label for="selCli">Cliente</label>
-      <select id="selCli"></select>
-      <div id="perfilMsg"></div>
-      <div class="dlg-acts">
-        <button type="button" class="btn-ghost" id="btnSair">Sair</button>
-        <button value="cancel" class="btn-ghost">Cancelar</button>
-        <button type="button" class="btn" id="btnEntrar">Entrar</button>
+    <div class="dlg">
+      <h2 id="t-perfil">Entrar</h2>
+      <p class="sub" id="perfilSubtitulo">Entre com seu e-mail e senha para continuar.</p>
+
+      <form id="formPerfil">
+        <div id="perfilForm">
+          <div id="campoNome" hidden>
+            <label for="perfilNomeInput">Nome completo</label>
+            <input id="perfilNomeInput" name="nome" autocomplete="name" minlength="2" maxlength="100">
+          </div>
+          <div>
+            <label for="perfilEmail">E-mail</label>
+            <input id="perfilEmail" name="email" type="email" autocomplete="email" required maxlength="200">
+          </div>
+          <div id="campoTelefone" hidden>
+            <label for="perfilTelefone">Telefone com DDD</label>
+            <input id="perfilTelefone" name="telefone" type="tel" autocomplete="tel" placeholder="(11) 99999-9999">
+          </div>
+          <div>
+            <label for="perfilSenha">Senha</label>
+            <input id="perfilSenha" name="senha" type="password" autocomplete="current-password" required minlength="8" maxlength="128">
+          </div>
+          <div id="perfilMsg" aria-live="polite"></div>
+          <button type="button" class="btn-text" id="alternarModo">Criar uma conta</button>
+          <div class="dlg-acts">
+            <button type="button" class="btn-ghost" onclick="document.getElementById('dlgPerfil').close()">Cancelar</button>
+            <button type="submit" class="btn" id="btnEntrar">Entrar</button>
+          </div>
+        </div>
+      </form>
+
+      <div id="perfilAutenticado" hidden>
+        <p>Você está conectado como:</p>
+        <p><b id="perfilLogadoNome"></b><br><span class="muted" id="perfilLogadoEmail"></span></p>
+        <div class="dlg-acts">
+          <button type="button" class="btn-ghost" onclick="document.getElementById('dlgPerfil').close()">Fechar</button>
+          <button type="button" class="btn" id="btnSair" hidden>Sair</button>
+        </div>
       </div>
-    </form>
+    </div>
   </dialog>
 
   <div class="toast" id="toast" role="status" hidden></div>

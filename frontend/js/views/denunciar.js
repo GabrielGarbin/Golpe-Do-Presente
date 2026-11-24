@@ -38,7 +38,6 @@ async function enviar(e) {
   $('#dMsg').innerHTML = '';
   try {
     await Api.denunciar({
-      clienteId: cli.id,
       telefoneGolpista: $('#dTel').value,
       canal: $('#dCanal').value,
       estabelecimentoFalsificado: $('#dLoja').value.trim() || null,

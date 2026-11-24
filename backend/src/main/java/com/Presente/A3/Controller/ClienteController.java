@@ -1,5 +1,6 @@
 package com.Presente.A3.Controller;
 import com.Presente.A3.Modelo.Cliente;
+import com.Presente.A3.Seguranca.SomenteAdmin;
 import com.Presente.A3.Service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +9,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * CRUD de clientes ({@code /clientes}). Restrito a administradores: a lista traz
+ * e-mail e telefone de todos os usuários (dado pessoal). O próprio usuário vê
+ * os seus dados em {@code GET /auth/eu}.
+ */
+@SomenteAdmin
 @RestController
 @RequestMapping("/clientes")
 public class ClienteController {

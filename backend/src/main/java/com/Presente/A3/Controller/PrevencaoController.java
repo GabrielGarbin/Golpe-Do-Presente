@@ -3,6 +3,7 @@ package com.Presente.A3.Controller;
 import com.Presente.A3.Analise.ConsultaCnpjService;
 import com.Presente.A3.Dto.MensagemRequest;
 import com.Presente.A3.Dto.ResultadoVerificacao;
+import com.Presente.A3.Seguranca.Publico;
 import com.Presente.A3.Service.PrevencaoService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +15,12 @@ import java.util.Map;
 /**
  * Endpoints de <b>prevenção</b> ({@code /prevencao}): o que a pessoa usa
  * quando recebe a mensagem, antes de o "entregador" chegar.
+ *
+ * <p>Público de propósito: quem recebeu a mensagem suspeita precisa consultar
+ * antes de criar conta. As consultas pagas (IA) e a de CNPJ têm cota diária
+ * por IP, então abrir o acesso não abre a conta de gastos.</p>
  */
+@Publico
 @RestController
 @RequestMapping("/prevencao")
 public class PrevencaoController {
