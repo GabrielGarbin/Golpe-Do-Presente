@@ -40,3 +40,7 @@ supabase/.branches/
 ### Configuração local com senhas (backend/config/application.properties) ###
 config/
 backend/config/
+
+.env
+.env.*
+!.env.example
