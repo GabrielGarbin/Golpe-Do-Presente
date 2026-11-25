@@ -16,15 +16,19 @@ import java.time.LocalDateTime;
  * Registro individual de uma denúncia feita por um {@link Cliente} contra
  * um {@link Golpista}.
  *
- * <p>Regra: um mesmo cliente só pode denunciar um mesmo número uma vez.
- * Assim, {@code Golpista.totalDenuncias} representa pessoas diferentes e
- * não pode ser inflado por repetição.</p>
+ * <p>Regra anti-spam: um mesmo cliente denuncia um mesmo número no máximo
+ * {@value #MAX_POR_CLIENTE} vezes. Cada denúncia dele ocupa uma "vaga"
+ * ({@code ordem} = 1 ou 2) e o banco tem UNIQUE (cliente_id, golpista_id, ordem):
+ * mesmo duas requisições simultâneas não conseguem passar do limite.</p>
  */
 @Entity
 @Table(name = "denuncias",
-        uniqueConstraints = @UniqueConstraint(name = "denuncias_cliente_golpista_unico",
-                columnNames = {"cliente_id", "golpista_id"}))
+        uniqueConstraints = @UniqueConstraint(name = "denuncias_cliente_golpista_ordem_unico",
+                columnNames = {"cliente_id", "golpista_id", "ordem"}))
 public class Denuncia {
+
+    /** Máximo de denúncias de um mesmo cliente contra um mesmo número. */
+    public static final int MAX_POR_CLIENTE = 2;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,8 +48,19 @@ public class Denuncia {
     private String descricao;
     @Column(nullable = false)
     private LocalDateTime data;
+    /** Vaga desta denúncia entre as do mesmo cliente para o mesmo número (1 ou 2). */
+    @Column(nullable = false)
+    private Integer ordem = 1;
 
     public Denuncia() {
+    }
+
+    public Integer getOrdem() {
+        return ordem;
+    }
+
+    public void setOrdem(Integer ordem) {
+        this.ordem = ordem;
     }
 
     public Long getId() {

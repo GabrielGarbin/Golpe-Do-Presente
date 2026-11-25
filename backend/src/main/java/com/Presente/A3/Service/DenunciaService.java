@@ -8,6 +8,7 @@ import com.Presente.A3.Modelo.Denuncia;
 import com.Presente.A3.Modelo.Golpista;
 import com.Presente.A3.Modelo.StatusGolpista;
 import com.Presente.A3.Repositorio.DenunciaRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -27,19 +29,21 @@ import java.util.stream.Collectors;
  * <p>Fluxo de {@link #registrar(DenunciaRequest)}:</p>
  * <ol>
  *   <li>valida o denunciante e o telefone informado;</li>
- *   <li>impede denunciar o próprio número e denunciar o mesmo número duas vezes;</li>
+ *   <li>impede denunciar o próprio número e denunciar o mesmo número mais de 2 vezes;</li>
  *   <li>cria o golpista como SUSPEITO se for a primeira denúncia contra ele;</li>
  *   <li>grava a denúncia e atualiza o contador (podendo confirmar o golpista).</li>
  * </ol>
  *
  * <p>As regras 2 e 3 evitam abuso: sem elas, uma única pessoa poderia
  * "queimar" o número de qualquer um repetindo a denúncia. No banco, a regra 2
- * também é garantida pela restrição UNIQUE (cliente_id, golpista_id).</p>
+ * também é garantida pela restrição UNIQUE (cliente_id, golpista_id, ordem).</p>
  */
 @Service
 public class DenunciaService {
 
     private static final int TAMANHO_MAX_DESCRICAO = 500;
+    private static final String LIMITE_ATINGIDO = "Você já denunciou este número " + Denuncia.MAX_POR_CLIENTE
+            + " vezes, o limite por pessoa.";
 
     private final ClienteService clienteService;
     private final GolpistaService golpistaService;
@@ -59,7 +63,7 @@ public class DenunciaService {
      *
      * @throws IllegalArgumentException dados inválidos ou tentativa de denunciar o próprio número
      * @throws NoSuchElementException   cliente denunciante não existe
-     * @throws IllegalStateException    este cliente já denunciou este número
+     * @throws IllegalStateException    este cliente já denunciou este número 2 vezes
      */
     @Transactional
     public Denuncia registrar(DenunciaRequest req) {
@@ -80,10 +84,16 @@ public class DenunciaService {
             throw new IllegalArgumentException("Você não pode denunciar o seu próprio número.");
         }
 
-        // Se o número já é conhecido, confere se este cliente já o denunciou.
+        // Se o número já é conhecido, confere quantas vezes este cliente já o denunciou.
         Optional<Golpista> conhecido = golpistaService.findByTelefone(telefone);
-        if (conhecido.isPresent() && jaDenunciou(cliente.getId(), conhecido.get().getId())) {
-            throw new IllegalStateException("Você já denunciou este número.");
+        int ordem = 1;
+        if (conhecido.isPresent()) {
+            Set<Integer> ocupadas = repositorio.findByClienteIdAndGolpistaId(cliente.getId(), conhecido.get().getId())
+                    .stream().map(Denuncia::getOrdem).collect(Collectors.toSet());
+            if (ocupadas.size() >= Denuncia.MAX_POR_CLIENTE) {
+                throw new IllegalStateException(LIMITE_ATINGIDO);
+            }
+            ordem = ocupadas.contains(1) ? 2 : 1; // usa a vaga livre (1 ou 2)
         }
 
         Golpista golpista = conhecido.orElseGet(
@@ -96,7 +106,13 @@ public class DenunciaService {
         d.setEstabelecimentoFalsificado(req.getEstabelecimentoFalsificado());
         d.setDescricao(req.getDescricao());
         d.setData(LocalDateTime.now());
-        d = repositorio.save(d);
+        d.setOrdem(ordem);
+        try {
+            // Grava já: se outra requisição simultânea ocupou a mesma vaga, o UNIQUE do banco recusa.
+            d = repositorio.saveAndFlush(d);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException(LIMITE_ATINGIDO);
+        }
 
         golpista = golpistaService.registrarDenuncia(golpista); // pode promover a CONFIRMADO
         alimentarClassificador(golpista, d);
@@ -187,7 +203,4 @@ public class DenunciaService {
         return resultado;
     }
 
-    private boolean jaDenunciou(Long clienteId, Long golpistaId) {
-        return repositorio.existsByClienteIdAndGolpistaId(clienteId, golpistaId);
-    }
 }

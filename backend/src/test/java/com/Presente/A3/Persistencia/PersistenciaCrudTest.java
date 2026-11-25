@@ -149,14 +149,15 @@ assertTrue(golpistas.listarBlacklist().stream()
     }
 
     @Test
-    void denunciaRepetidaEhBarradaENaoAlteraAContagem() {
+    void terceiraDenunciaDaMesmaPessoaEhBarradaENaoAlteraAContagem() {
         Long cliente = novoCliente("a");
         String alvo = telefone();
         denunciar(cliente, alvo);
+        denunciar(cliente, alvo); // a 2ª é permitida
 
         assertThrows(IllegalStateException.class, () -> denunciar(cliente, alvo));
 
-        assertEquals(1, golpistas.findByTelefone(alvo).orElseThrow().getTotalDenuncias());
+        assertEquals(2, golpistas.findByTelefone(alvo).orElseThrow().getTotalDenuncias());
     }
 
     @Test
@@ -171,8 +172,8 @@ assertTrue(golpistas.listarBlacklist().stream()
         duplicada.setCanal(CanalContato.SMS);
         duplicada.setData(LocalDateTime.now());
 
-        // Gravando direto no repositório (sem passar pelas regras do serviço): a
-        // restrição UNIQUE (cliente_id, golpista_id) da tabela precisa barrar.
+        // Gravando direto no repositório (sem passar pelas regras do serviço) na mesma
+        // vaga (ordem 1): a restrição UNIQUE (cliente_id, golpista_id, ordem) precisa barrar.
         assertThrows(DataIntegrityViolationException.class, () -> denunciaRepo.saveAndFlush(duplicada));
     }
 

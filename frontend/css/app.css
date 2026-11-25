@@ -31,6 +31,10 @@ h1, h2, h3 { margin: 0; letter-spacing: -.01em; }
 
 /* ---------- Visão de administrador ---------- */
 body:not(.is-admin) .admin-only { display: none !important; }
+/* Visitante (sem login) não vê funções de conta; exemplos de mensagem só para o admin fixo. */
+body:not(.is-logado) .logado-only { display: none !important; }
+body:not(.is-admin-fixo) .fixo-only { display: none !important; }
+body.is-logado .visitante-only { display: none !important; }
 body:not(.is-admin) .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 body:not(.is-admin) #v-painel .view-head { align-items: center; }
 

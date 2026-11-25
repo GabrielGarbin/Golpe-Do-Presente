@@ -45,6 +45,8 @@ function iniciais(nome) {
 
 function pintar() {
   document.body.classList.toggle('is-admin', ehAdmin(cliente));
+  document.body.classList.toggle('is-logado', Boolean(cliente));
+  document.body.classList.toggle('is-admin-fixo', Boolean(cliente?.adminFixo));
   $('#avatar').textContent = cliente ? iniciais(cliente.nome) : '?';
   $('#perfilNome').textContent = cliente ? cliente.nome.split(' ')[0] : 'Entrar';
   $('#perfilSub').textContent = !cliente ? 'Acesse sua conta' : ehAdmin(cliente) ? 'Administrador' : 'Cliente conectado';
@@ -91,6 +93,12 @@ export async function abrirPerfil() {
   if (!cliente) $('#perfilEmail').focus();
 }
 
+/** Abre o login com um aviso (usado quando um visitante tenta abrir uma função de conta). */
+export function pedirLogin(texto) {
+  abrirPerfil();
+  if (!cliente) msg('#perfilMsg', texto, 'ok');
+}
+
 async function autenticar(e) {
   e.preventDefault();
   const btn = $('#btnEntrar');
@@ -111,7 +119,7 @@ async function autenticar(e) {
 
     const c = resposta.cliente;
     if (!resposta.token || !c) throw new Error('A API não retornou os dados da sessão.');
-    gravar({ id: c.id, nome: c.nome, email: c.email, perfil: c.perfil }, resposta.token);
+    gravar({ id: c.id, nome: c.nome, email: c.email, perfil: c.perfil, adminFixo: Boolean(c.adminFixo) }, resposta.token);
     $('#dlgPerfil').close();
   } catch (erro) {
     msg('#perfilMsg', erro.message || 'Não foi possível autenticar.');
@@ -124,7 +132,7 @@ async function validarSessaoSalva() {
   if (!cliente) return;
   try {
     const atual = await Api.eu();
-    cliente = { id: atual.id, nome: atual.nome, email: atual.email, perfil: atual.perfil };
+    cliente = { id: atual.id, nome: atual.nome, email: atual.email, perfil: atual.perfil, adminFixo: Boolean(atual.adminFixo) };
     try { localStorage.setItem('cli', JSON.stringify(cliente)); } catch { /* sem storage */ }
     pintar();
     ouvintes.forEach(f => f(cliente));

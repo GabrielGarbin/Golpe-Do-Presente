@@ -1,5 +1,5 @@
 /**
- * Painel: indicadores, alertas recentes, canais, lojas imitadas e camadas.
+ * Painel: indicadores, alertas recentes, canais e camadas.
  *
  * Paralelismo: as quatro consultas à API saem ao mesmo tempo e cada bloco
  * é desenhado assim que a SUA resposta chega. Se uma falhar, só aquele
@@ -42,11 +42,6 @@ function pintarEstatisticas(est) {
           <div class="bar"><i data-w="${(n / max) * 100}"></i></div></div>`).join('')}</div>`
     : '<p class="muted">Sem denúncias ainda.</p>';
   requestAnimationFrame(() => $$('#canais .bar i').forEach(i => (i.style.width = i.dataset.w + '%')));
-
-  const lojas = Object.entries(est.estabelecimentosMaisImitados || {});
-  $('#lojas').innerHTML = lojas.length
-    ? `<ol class="rank">${lojas.map(([l, n]) => `<li><span>${esc(l)}</span><b>${plural(n, 'denúncia', 'denúncias')}</b></li>`).join('')}</ol>`
-    : '<p class="muted">Nenhuma loja informada nas denúncias.</p>';
 }
 
 function pintarCamadas(cam) {

@@ -13,12 +13,19 @@ public class RespostaAuth {
         private final String nome;
         private final String email;
         private final String perfil;
+        /** true só para o administrador fixo (ADMINS_EMAIL): libera recursos de demonstração no front. */
+        private final boolean adminFixo;
 
-        public ClienteResumo(Long id, String nome, String email, String perfil) {
+        public ClienteResumo(Long id, String nome, String email, String perfil, boolean adminFixo) {
             this.id = id;
             this.nome = nome;
             this.email = email;
             this.perfil = perfil;
+            this.adminFixo = adminFixo;
+        }
+
+        public boolean isAdminFixo() {
+            return adminFixo;
         }
 
         public Long getId() {

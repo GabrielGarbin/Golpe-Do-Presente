@@ -74,7 +74,7 @@
     <a data-nav="painel" href="#/painel"><i data-icon="grid"></i>Painel</a>
     <p class="nav-group">Verificar</p>
     <a data-nav="consultar" href="#/consultar"><i data-icon="phone"></i>Consultar número</a>
-    <a data-nav="mensagem" href="#/mensagem"><i data-icon="message"></i>Analisar mensagem</a>
+    <a class="logado-only" data-nav="mensagem" href="#/mensagem"><i data-icon="message"></i>Analisar mensagem</a>
     <a data-nav="cnpj" href="#/cnpj"><i data-icon="building"></i>Verificar loja (CNPJ)</a>
     <a data-nav="assistente" href="#/assistente"><i data-icon="gift"></i>Posso receber?</a>
     <p class="nav-group">Agir</p>
@@ -124,8 +124,6 @@
         <article class="card">
           <header class="card-h"><h2>Denúncias por canal</h2></header>
           <div class="card-b" id="canais"></div>
-          <header class="card-h card-h2"><h2>Lojas mais imitadas</h2></header>
-          <div class="card-b scroll" id="lojas"></div>
         </article>
 
         <article class="card card-steps">
@@ -182,7 +180,7 @@
             <label for="mRem">Número de quem enviou <small>(opcional)</small></label>
             <input id="mRem" data-mask="tel" inputmode="tel" placeholder="(11) 90000-0001" autocomplete="off">
             <button class="btn btn-block">Analisar mensagem</button>
-            <button type="button" class="btn-text" id="mExemplo">Usar mensagem de exemplo</button>
+            <button type="button" class="btn-text fixo-only" id="mExemplo">Usar mensagem de exemplo</button>
           </div>
         </form>
         <article class="card result" id="rMensagem" aria-live="polite"></article>
@@ -236,7 +234,17 @@
         </div>
       </div>
       <div class="tool-grid tool-grid-den">
-        <form class="card form" id="fDenuncia" novalidate>
+        <!-- Visitante: pode abrir o boletim de ocorrência (ao lado); a denúncia na base exige conta. -->
+        <article class="card visitante-only" id="dVisitante">
+          <div class="empty">
+            <span class="empty-ic"><i data-icon="flag"></i></span>
+            <b>Denúncia na base colaborativa</b>
+            <p>Entre ou crie uma conta para registrar o número e alertar outras pessoas. Sua denúncia fica anônima.
+              O boletim de ocorrência você já pode fazer agora, pelo botão “Boletim de ocorrência online”.</p>
+            <button type="button" class="btn" id="dEntrar">Entrar para denunciar</button>
+          </div>
+        </article>
+        <form class="card form logado-only" id="fDenuncia" novalidate>
           <div class="card-b">
             <div class="fields">
               <div><label for="dTel">Número do golpista</label><input id="dTel" data-mask="tel" inputmode="tel" placeholder="(11) 90000-0001" autocomplete="off"></div>
@@ -278,8 +286,9 @@
             <p class="aside-nota">Site oficial da Secretaria da Segurança Pública de SP (abre em nova aba).</p>
           </div>
           <header class="card-h card-h2"><h2>Como a confirmação funciona</h2></header>
-          <p class="card-p" id="dRegra">Quando pessoas diferentes denunciam o mesmo número, ele passa a ser
+          <p class="card-p" id="dRegra">Quando o mesmo número acumula denúncias, ele passa a ser
             <b>confirmado</b> e entra na blacklist.</p>
+          <p class="card-p">Cada pessoa pode denunciar o mesmo número <b>no máximo 2 vezes</b>, para evitar spam.</p>
         </aside>
       </div>
     </section>

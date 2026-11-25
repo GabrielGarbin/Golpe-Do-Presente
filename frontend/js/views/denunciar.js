@@ -18,7 +18,7 @@ function pintarDiferenca() {
 function pintarQuem() {
   const c = getCliente();
   $('#dWho').innerHTML = c
-    ? `Denunciando como <b>${esc(c.nome)}</b>`
+    ? '<b>Denúncia anônima:</b> só a administração vê quem enviou.'
     : 'Você precisa <b>entrar</b> como cliente para enviar.';
 }
 
@@ -60,6 +60,7 @@ export function init() {
   onClienteChange(pintarQuem);
   $('#dDesc').addEventListener('input', e => ($('#dCnt').textContent = e.target.value.length));
   $('#fDenuncia').addEventListener('submit', enviar);
+  $('#dEntrar').addEventListener('click', abrirPerfil);
   ['#dVa', '#dVc'].forEach(id => $(id).addEventListener('input', pintarDiferenca));
 }
 
@@ -76,7 +77,7 @@ export function show({ tel, va, vc }) {
   if (!regraCarregada) {
     Api.estatisticas().then(est => {
       regraCarregada = true;
-      $('#dRegra').innerHTML = `Quando <b>${est.limiteConfirmacao} pessoas diferentes</b> denunciam o mesmo número, ele passa a ser <b>confirmado</b> e entra na blacklist. Uma denúncia isolada não confirma nada, o que evita denúncias falsas.`;
+      $('#dRegra').innerHTML = `Quando o mesmo número recebe <b>${est.limiteConfirmacao} denúncias</b>, ele passa a ser <b>confirmado</b> e entra na blacklist. Uma denúncia isolada não confirma nada, o que evita denúncias falsas.`;
     }).catch(() => { /* mantém o texto padrão */ });
   }
 }

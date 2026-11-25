@@ -31,9 +31,12 @@ class EndpointsApiTest extends ApiTestBase {
 
         assertEquals(200, http().get("/prevencao/checklist", null).status());
 
+        String texto = "Parabéns! Você ganhou um brinde. O entregador está a caminho, "
+                + "só pagar a taxa de entrega na maquininha hoje.";
+        // Analisar mensagem exige login; consulta de número e checklist, não.
+        assertEquals(401, http().post("/prevencao/mensagem", ClienteHttp.json("mensagem", texto), null).status());
         ClienteHttp.Resposta msg = http().post("/prevencao/mensagem",
-                ClienteHttp.json("mensagem", "Parabéns! Você ganhou um brinde. O entregador está a caminho, "
-                        + "só pagar a taxa de entrega na maquininha hoje."), null);
+                ClienteHttp.json("mensagem", texto), novoUsuarioToken());
         assertEquals(200, msg.status());
         assertNotNull(msg.campo("nivelRisco"));
         assertNotNull(msg.campo("pontuacao"));
@@ -41,11 +44,12 @@ class EndpointsApiTest extends ApiTestBase {
 
     @Test
     void mensagemTipicaDoGolpePontuaMaisQueUmaMensagemComum() {
+        String token = novoUsuarioToken();
         int golpe = Integer.parseInt(http().post("/prevencao/mensagem", ClienteHttp.json("mensagem",
-                "Você ganhou um brinde! O entregador está a caminho, pague a taxa de entrega na maquininha hoje."), null)
+                "Você ganhou um brinde! O entregador está a caminho, pague a taxa de entrega na maquininha hoje."), token)
                 .campo("pontuacao"));
         int comum = Integer.parseInt(http().post("/prevencao/mensagem",
-                ClienteHttp.json("mensagem", "Oi, tudo bem? Vamos almoçar amanhã?"), null).campo("pontuacao"));
+                ClienteHttp.json("mensagem", "Oi, tudo bem? Vamos almoçar amanhã?"), token).campo("pontuacao"));
 
         assertTrue(golpe > comum, "golpe=" + golpe + " comum=" + comum);
     }
@@ -68,7 +72,8 @@ class EndpointsApiTest extends ApiTestBase {
         assertEquals(400, r.status());
         assertNotNull(r.campo("erro"));
 
-        assertEquals(400, http().post("/prevencao/mensagem", ClienteHttp.json("mensagem", "   "), null).status());
+        assertEquals(400, http().post("/prevencao/mensagem", ClienteHttp.json("mensagem", "   "),
+                novoUsuarioToken()).status());
     }
 
     // ------------------------------------------------------------------ denúncia colaborativa
@@ -112,7 +117,10 @@ class EndpointsApiTest extends ApiTestBase {
         String corpo = ClienteHttp.json("telefoneGolpista", golpista, "canal", "SMS");
 
         assertEquals(201, http().post("/denuncias", corpo, token).status());
-        assertEquals(409, http().post("/denuncias", corpo, token).status(), "mesma pessoa, mesmo número");
+        assertEquals(201, http().post("/denuncias", corpo, token).status(), "2ª denúncia da mesma pessoa: permitida");
+        ClienteHttp.Resposta terceira = http().post("/denuncias", corpo, token);
+        assertEquals(409, terceira.status(), "3ª denúncia da mesma pessoa, mesmo número");
+        assertTrue(terceira.corpo().contains("limite"), terceira.corpo());
         assertEquals(400, http().post("/denuncias", ClienteHttp.json("telefoneGolpista", "12"), token).status(), "telefone inválido");
         assertEquals(400, http().post("/denuncias", ClienteHttp.json("telefoneGolpista", golpista, "canal", "FAX"), token).status(), "canal inexistente");
     }

@@ -3,6 +3,13 @@
  * Cada tela é um módulo com { init(), show(params) }.
  */
 import { $, $$ } from './util.js';
+import { getCliente, onClienteChange, pedirLogin } from './session.js';
+
+/**
+ * Telas que exigem login. O visitante vê painel, consultas, "Posso receber?",
+ * orientações e, em "Denunciar", só o boletim de ocorrência.
+ */
+const SO_LOGADO = new Set(['mensagem']);
 
 const telas = new Map();
 const TITULO_BASE = 'Bradesco · Proteção contra o Golpe do Presente';
@@ -27,6 +34,12 @@ function ler() {
 
 function renderizar() {
   const { nome, params } = ler();
+  if (SO_LOGADO.has(nome) && !getCliente()) {
+    history.replaceState(null, '', '#/painel');
+    renderizar();
+    pedirLogin('Entre ou crie uma conta para usar esta função.');
+    return;
+  }
   $$('.view').forEach(v => (v.hidden = v.id !== 'v-' + nome));
   $$('[data-nav]').forEach(a => {
     const on = a.dataset.nav === nome;
@@ -42,5 +55,7 @@ function renderizar() {
 
 export function iniciarRotas() {
   addEventListener('hashchange', renderizar);
+  // Saiu da conta numa tela que exige login: volta para o painel.
+  onClienteChange(c => { if (!c && SO_LOGADO.has(atual)) renderizar(); });
   renderizar();
 }

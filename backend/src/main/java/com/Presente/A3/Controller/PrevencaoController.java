@@ -16,11 +16,10 @@ import java.util.Map;
  * Endpoints de <b>prevenção</b> ({@code /prevencao}): o que a pessoa usa
  * quando recebe a mensagem, antes de o "entregador" chegar.
  *
- * <p>Público de propósito: quem recebeu a mensagem suspeita precisa consultar
- * antes de criar conta. As consultas pagas (IA) e a de CNPJ têm cota diária
- * por IP, então abrir o acesso não abre a conta de gastos.</p>
+ * <p>Consulta de número, de CNPJ, camadas e checklist são públicas: quem recebeu
+ * a mensagem suspeita precisa consultar antes de criar conta. A análise de
+ * mensagem exige login. As consultas pagas (IA) e a de CNPJ têm cota diária por IP.</p>
  */
-@Publico
 @RestController
 @RequestMapping("/prevencao")
 public class PrevencaoController {
@@ -37,6 +36,7 @@ public class PrevencaoController {
      * Verifica a loja pelo CNPJ: {@code GET /prevencao/cnpj?numero=00.000.000/0001-91}.
      * Consulta a Receita via BrasilAPI; se estiver fora do ar, devolve resultado inconclusivo.
      */
+    @Publico
     @GetMapping("/cnpj")
     public ResultadoVerificacao verificarCnpj(@RequestParam String numero, HttpServletRequest http) {
         return consultaCnpj.verificar(numero, http.getRemoteAddr());
@@ -47,6 +47,7 @@ public class PrevencaoController {
      * O número vai como parâmetro de consulta (e não no caminho) para aceitar
      * qualquer formatação, como "+55 (11) 98765-4321".
      */
+    @Publico
     @GetMapping("/telefone")
     public ResultadoVerificacao verificarTelefone(@RequestParam String numero) {
         return prevencaoService.verificarTelefone(numero);
@@ -57,6 +58,7 @@ public class PrevencaoController {
      * O campo {@code telefoneRemetente} é opcional e, se enviado, cruza o
      * resultado com a base colaborativa.
      */
+    // Sem @Publico: analisar mensagem exige login (visitantes só consultam número e CNPJ).
     @PostMapping("/mensagem")
     public ResultadoVerificacao analisarMensagem(@RequestBody MensagemRequest request,
                                                  HttpServletRequest http) {
@@ -68,6 +70,7 @@ public class PrevencaoController {
      * {@code GET /prevencao/camadas} - quais camadas de análise estão ativas
      * (útil para a demonstração e para conferir se a IA opcional está ligada).
      */
+    @Publico
     @GetMapping("/camadas")
     public Map<String, Object> camadas() {
         Map<String, Object> m = new LinkedHashMap<>();
@@ -80,6 +83,7 @@ public class PrevencaoController {
     }
 
     /** {@code GET /prevencao/checklist} - o que fazer antes, durante e depois da entrega. */
+    @Publico
     @GetMapping("/checklist")
     public Map<String, List<String>> checklist() {
         return prevencaoService.checklistEntrega();

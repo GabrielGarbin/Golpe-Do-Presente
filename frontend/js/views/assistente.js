@@ -87,7 +87,7 @@ function pintarResultado() {
     </div></div>
     <div class="r-acts">
       <button class="btn" data-a="num">Consultar o número</button>
-      <button class="btn-ghost" data-a="msg">Analisar a mensagem</button>
+      <button class="btn-ghost logado-only" data-a="msg">Analisar a mensagem</button>
     </div>`;
   box.querySelector('[data-a="num"]').onclick = () => ir('consultar');
   box.querySelector('[data-a="msg"]').onclick = () => ir('mensagem');

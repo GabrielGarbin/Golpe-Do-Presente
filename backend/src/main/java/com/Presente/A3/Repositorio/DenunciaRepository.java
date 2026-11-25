@@ -15,6 +15,9 @@ public interface DenunciaRepository extends JpaRepository<Denuncia, Long> {
 
     boolean existsByClienteIdAndGolpistaId(Long clienteId, Long golpistaId);
 
+    /** Denúncias de um cliente contra um número (no máximo {@code Denuncia.MAX_POR_CLIENTE}). */
+    List<Denuncia> findByClienteIdAndGolpistaId(Long clienteId, Long golpistaId);
+
     List<Denuncia> findByGolpistaIdOrderByIdAsc(Long golpistaId);
 
     /** Relatos de números com o status informado (usado para re-treinar o classificador ao iniciar). */

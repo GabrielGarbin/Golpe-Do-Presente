@@ -27,6 +27,10 @@ class AdminApiTest extends ApiTestBase {
         }
         assertEquals(403, http().delete("/admin/denuncias/1", usuario).status());
         assertEquals(403, http().post("/admin/usuarios", ClienteHttp.json("nome", "X"), usuario).status());
+
+        // Só o admin fixo recebe adminFixo=true (libera as mensagens de exemplo no front)
+        assertEquals("true", http().get("/auth/eu", tokenAdmin()).campo("adminFixo"));
+        assertEquals("false", http().get("/auth/eu", usuario).campo("adminFixo"));
     }
 
     // ---------------------------------------------------------- usuários

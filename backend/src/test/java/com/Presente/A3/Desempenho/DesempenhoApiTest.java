@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * (um usuário por vez) e em pico (muitos usuários ao mesmo tempo).
  *
  * <p>Os endpoints medidos são os que qualquer pessoa usa sem login: verificação
- * de saúde, consulta de número, análise de mensagem, blacklist e estatísticas.
+ * de saúde, consulta de número, checklist, blacklist e estatísticas.
  * Os resultados vão para o console e para {@code target/relatorio-desempenho.md},
  * pronto para virar tabela no artigo.</p>
  *
@@ -58,9 +58,6 @@ class DesempenhoApiTest {
     /** Limites do teste (p95, em milissegundos). */
     private static final long LIMITE_P95_NORMAL_MS = 1_000;
     private static final long LIMITE_P95_PICO_MS = 3_000;
-
-    private static final String MENSAGEM_JSON = "{\"mensagem\":\"Parabéns! Você ganhou um brinde. "
-            + "O entregador está a caminho, é só pagar a taxa de entrega na maquininha hoje.\"}";
 
     @Value("${local.server.port}")
     private int porta;
@@ -171,10 +168,8 @@ class DesempenhoApiTest {
                 b = HttpRequest.newBuilder(URI.create(base + "/prevencao/telefone?numero=11999990000")).GET();
             }
             case 2 -> {
-                rotulo = "POST /prevencao/mensagem";
-                b = HttpRequest.newBuilder(URI.create(base + "/prevencao/mensagem"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(MENSAGEM_JSON));
+                rotulo = "GET /prevencao/checklist";
+                b = HttpRequest.newBuilder(URI.create(base + "/prevencao/checklist")).GET();
             }
             case 3 -> {
                 rotulo = "GET /golpistas/blacklist";

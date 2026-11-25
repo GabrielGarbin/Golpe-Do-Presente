@@ -127,7 +127,8 @@ public class AuthService {
     }
 
     private RespostaAuth.ClienteResumo resumo(Cliente c, Perfil perfil) {
-        return new RespostaAuth.ClienteResumo(c.getId(), c.getNome(), c.getEmail(), perfil.name());
+        return new RespostaAuth.ClienteResumo(c.getId(), c.getNome(), c.getEmail(), perfil.name(),
+                perfis.ehAdminFixo(c.getEmail()));
     }
 
     private static String normalizarEmail(String email) {

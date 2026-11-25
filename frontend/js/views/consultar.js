@@ -34,7 +34,7 @@ async function consultar(numero) {
 
     box().innerHTML = resultado(r, TEXTO_TELEFONE, {
       antes: stats,
-      acoes: `<button class="btn" data-a="den">Denunciar este número</button>
+      acoes: `<button class="btn logado-only" data-a="den">Denunciar este número</button>
               <button class="btn-ghost" data-a="ori">Ver orientações</button>`
     });
     box().querySelector('[data-a="den"]').onclick = () => ir('denunciar', { tel: numero });

@@ -70,10 +70,12 @@ class DenunciaServiceTest {
     }
 
     @Test
-    void mesmaPessoaNaoDenunciaDuasVezes() {
+    void mesmaPessoaDenunciaNoMaximoDuasVezes() {
         Long cliente = novoCliente("a", "11911110001");
         denunciar(cliente, NUMERO);
-        assertThrows(IllegalStateException.class, () -> denunciar(cliente, "+55 11 95555-0001"));
+        denunciar(cliente, "+55 11 95555-0001"); // mesmo número em outro formato: 2ª, permitida
+        assertThrows(IllegalStateException.class, () -> denunciar(cliente, NUMERO));
+        assertEquals(2, golpistas.findByTelefone(NUMERO).orElseThrow().getTotalDenuncias());
     }
 
     @Test
