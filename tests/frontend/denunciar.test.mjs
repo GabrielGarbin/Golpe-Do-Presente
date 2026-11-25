@@ -38,7 +38,7 @@ test('botão leva para o WebDenúncia da SSP-SP, em nova aba', () => {
   assert.equal(link.getAttribute('href'), 'https://www.webdenuncia.sp.gov.br/');
   assert.equal(link.getAttribute('target'), '_blank');
   assert.match(link.getAttribute('rel'), /noopener/);
-  assert.match(link.textContent, /WebDenúncia/);
+  assert.match(link.textContent, /Boletim de ocorrência online/);
 });
 
 test('envia a denúncia para POST /denuncias com token e o corpo que a API espera', async () => {
