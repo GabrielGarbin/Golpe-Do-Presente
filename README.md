@@ -116,22 +116,101 @@ Para não inseri-los, use `app.demo.seed=false`.
 
 ## Como rodar
 
-São dois processos independentes (dois terminais):
+### Com um comando (recomendado)
+
+| Sistema | Como iniciar |
+|---------|--------------|
+| Windows | Dois cliques em **`iniciar.cmd`** (ou `.\iniciar.cmd` no terminal) |
+| Mac / Linux | `./iniciar.sh` |
+
+O script confere a configuração do banco, sobe a API e o front-end, **espera a API ficar pronta**
+e abre o navegador em `http://localhost:5500`. Se algo já estiver rodando, ele reaproveita.
+No Windows, a API e o front abrem em duas janelas (feche-as para parar); no Mac/Linux, Ctrl+C
+encerra os dois (logs em `api.log` e `front.log`).
+
+Requisitos: Java 21 e Python 3 (ou Node.js), além de `backend/config/application.properties`
+com a conexão do banco (seção "Banco de dados").
+
+### Com Docker
 
 ```bash
-# 1) Back-end (API) - http://localhost:8081
-cd backend
-./mvnw spring-boot:run        # Windows: mvnw.cmd spring-boot:run
-./mvnw test                   # testes (usam H2 em memória, não tocam no Supabase)
-
-# 2) Front-end - http://localhost:5500
-cd frontend
-python -m http.server 5500    # ou: npx serve -l 5500   ou a extensão "Live Server" do VS Code
+docker compose up --build      # depois abra http://localhost:5500
 ```
 
-Abra `http://localhost:5500`. O selo **"API conectada"** no cabeçalho confirma a comunicação.
-O front precisa ser aberto por um servidor (não com duplo clique no arquivo), porque usa módulos JavaScript.
-Roteiro de chamadas prontas da API em `backend/demonstracao.http`.
+Precisa de `backend/.env` (copie de `backend/.env.example`) e de `.env` na raiz com `JWT_SECRET`.
+
+### Manualmente (dois terminais)
+
+```bash
+cd backend && ./mvnw spring-boot:run          # API em http://localhost:8081 (Windows: .\mvnw.cmd)
+cd frontend && python -m http.server 5500     # front em http://localhost:5500
+```
+
+Testes: `cd backend && ./mvnw test` (H2 em memória, não toca no Supabase) e
+`cd tests && npm ci && npm test` (front-end). O selo **"API conectada"** no cabeçalho confirma a
+comunicação. Roteiro de chamadas prontas da API em `backend/demonstracao.http`.
+
+## Área de administração
+
+Menu **Administração** (aparece só para administradores). Três abas, com busca e filtros:
+
+| Aba | O que o administrador faz |
+|-----|---------------------------|
+| Denúncias | Vê quem denunciou, o número, canal, loja e relato; **remove** denúncias. O número é recalculado: sai da blacklist se cair abaixo do limite e sai da base se ficar sem denúncias. |
+| Usuários | **Cadastra**, **edita**, **redefine a senha**, **promove a administrador** ou **rebaixa** e **exclui** contas (mantendo as denúncias como anônimas ou apagando-as junto). |
+| Números | **Confirma manualmente** (entra na blacklist), **volta a suspeito** ou **remove** o número e suas denúncias. |
+
+**Quem é administrador**: os e-mails de `ADMINS_EMAIL` (administradores **fixos**, que garantem
+sempre existir um) e quem for **promovido** no painel (tabela `administradores`).
+
+**Travas de segurança**: o back-end confere no banco, **a cada chamada**, se a pessoa ainda é
+administradora (quem é rebaixado ou excluído perde o acesso na hora, sem esperar o token
+expirar). Ninguém pode se excluir ou se rebaixar, e administradores fixos não podem ser
+rebaixados, excluídos nem ter o e-mail trocado pelo painel. Esconder o menu no front é só
+conforto visual: a proteção é do back-end.
+
+**Migração necessária para promover administradores**: aplique
+`backend/supabase/migrations/20261125000000_administradores.sql` (SQL Editor do Supabase ou
+`supabase db push`). Sem ela, todo o resto funciona normalmente; só a promoção fica indisponível
+(com uma mensagem explicando o motivo).
+
+Rotas (todas exigem administrador): `GET /admin/resumo`, `GET|POST /admin/usuarios`,
+`GET|PUT|DELETE /admin/usuarios/{id}`, `PUT /admin/usuarios/{id}/senha`,
+`PUT /admin/usuarios/{id}/perfil`, `GET /admin/denuncias`, `DELETE /admin/denuncias/{id}`,
+`PUT /admin/numeros/{id}/status`, `DELETE /admin/numeros/{id}`.
+
+## Publicação no Render (Docker)
+
+### Jeito rápido: Blueprint (`render.yaml`)
+
+Render → **New + → Blueprint** → escolha o repositório → **Apply**. Os dois serviços (API e
+front) são criados juntos, já com health check, região perto do banco e `JWT_SECRET` gerado
+automaticamente. A tela pede só o que não pode ficar no Git:
+
+| Serviço | Preencha |
+|---------|----------|
+| API | `SUPABASE_DB_URL`, `SUPABASE_DB_USER`, `SUPABASE_DB_PASSWORD`, `ADMINS_EMAIL`, `CORS_ORIGENS` (URL do front) |
+| Front | `API_URL` (URL da API) |
+
+As URLs só existem depois que os serviços são criados: na primeira vez, aplique, copie as duas
+URLs (`https://...onrender.com`) e preencha `CORS_ORIGENS` e `API_URL` em **Environment**.
+
+O front chama a API **direto pela URL dela**: assim o back-end enxerga o IP real de cada pessoa,
+e as cotas por usuário (CNPJ, IA) e o bloqueio de login funcionam como esperado.
+
+### Deploy mais rápido
+
+- O `backend/Dockerfile` baixa as dependências do Maven numa camada separada: se o `pom.xml`
+  não mudou, os próximos builds reaproveitam essa camada.
+- A API roda com `-XX:+UseSerialGC`, o coletor mais leve para o contêiner pequeno do plano
+  gratuito, e sem privilégios de administrador.
+- **Plano gratuito**: o serviço "dorme" após 15 min sem acesso e a primeira requisição demora
+  para acordar. **Antes de apresentar**, abra o front e a URL `/saude` da API alguns minutos antes.
+- `JWT_SECRET` precisa ser fixo: se mudar, todos os logins caem.
+- O modo `/api` (proxy do nginx) é o usado pelo `docker compose` local. Na nuvem, se for usá-lo,
+  defina também `API_UPSTREAM=https://SUA-API.onrender.com` e `NGINX_RESOLVER` com um DNS válido
+  no serviço (o padrão `127.0.0.11` só existe dentro do Docker Compose); nesse modo as cotas
+  passam a ver o IP do front, não o de cada pessoa.
 
 ## Testes
 

@@ -4,17 +4,11 @@ import com.Presente.A3.Modelo.Cliente;
 import com.Presente.A3.Modelo.CredencialSenha;
 import com.Presente.A3.Repositorio.ClienteRepository;
 import com.Presente.A3.Repositorio.CredencialSenhaRepository;
-import com.Presente.A3.Service.TelefoneUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Regras de cadastro e login.
@@ -26,37 +20,31 @@ import java.util.stream.Collectors;
  *       para "e-mail inexistente" e "senha errada", para não revelar quais
  *       e-mails têm conta. Falhas repetidas bloqueiam temporariamente
  *       ({@link LimitadorLogin}).</li>
- *   <li><b>Perfil</b>: ADMIN só para e-mails listados em
- *       {@code app.auth.admins-email}; todos os demais são USUARIO. O perfil
+ *   <li><b>Perfil</b>: ADMIN para e-mails de
+ *       {@code app.auth.admins-email} e para quem foi promovido no painel
+ *       ({@link PerfilService}); todos os demais são USUARIO. O perfil
  *       vai dentro do token, então não pode ser alterado pelo cliente.</li>
  * </ul>
  */
 @Service
 public class AuthService {
 
-    private static final Pattern EMAIL = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
-    private static final int SENHA_MIN = 8;
-    private static final int SENHA_MAX = 128;
-
     private final ClienteRepository clientes;
     private final CredencialSenhaRepository credenciais;
     private final SenhaService senhas;
     private final JwtService jwt;
     private final LimitadorLogin limitador;
-    private final Set<String> admins;
+    private final PerfilService perfis;
 
     public AuthService(ClienteRepository clientes, CredencialSenhaRepository credenciais,
                        SenhaService senhas, JwtService jwt, LimitadorLogin limitador,
-                       @Value("${app.auth.admins-email:}") String adminsEmail) {
+                       PerfilService perfis) {
         this.clientes = clientes;
         this.credenciais = credenciais;
         this.senhas = senhas;
         this.jwt = jwt;
         this.limitador = limitador;
-        this.admins = Arrays.stream(adminsEmail.split(","))
-                .map(AuthService::normalizarEmail)
-                .filter(e -> !e.isEmpty())
-                .collect(Collectors.toSet());
+        this.perfis = perfis;
     }
 
     /**
@@ -70,25 +58,10 @@ public class AuthService {
         if (req == null) {
             throw new DadosInvalidosException("Corpo da requisição é obrigatório.");
         }
-        String nome = req.getNome() == null ? "" : req.getNome().trim();
-        if (nome.length() < 2 || nome.length() > 100) {
-            throw new DadosInvalidosException("Informe o nome (2 a 100 caracteres).");
-        }
-        String email = normalizarEmail(req.getEmail());
-        if (email.length() > 200 || !EMAIL.matcher(email).matches()) {
-            throw new DadosInvalidosException("E-mail inválido.");
-        }
-        String telefone;
-        try {
-            telefone = TelefoneUtil.normalizar(req.getTelefone());
-        } catch (IllegalArgumentException e) {
-            throw new DadosInvalidosException(e.getMessage());
-        }
-        String senha = req.getSenha();
-        if (senha == null || senha.length() < SENHA_MIN || senha.length() > SENHA_MAX) {
-            throw new DadosInvalidosException(
-                    "A senha deve ter entre " + SENHA_MIN + " e " + SENHA_MAX + " caracteres.");
-        }
+        String nome = ValidacaoCadastro.nome(req.getNome());
+        String email = ValidacaoCadastro.email(req.getEmail());
+        String telefone = ValidacaoCadastro.telefone(req.getTelefone());
+        String senha = ValidacaoCadastro.senha(req.getSenha());
 
         if (clientes.existsByEmailIgnoreCase(email)) {
             throw new ConflitoException("Já existe uma conta com este e-mail.");
@@ -99,7 +72,8 @@ public class AuthService {
 
         Cliente cliente = clientes.save(new Cliente(null, nome, email, telefone));
         credenciais.save(new CredencialSenha(cliente.getId(), senhas.gerarHash(senha)));
-        return resposta(cliente);
+        // Conta nova não pode estar entre os promovidos: não consulta a tabela dentro desta transação.
+        return resposta(cliente, perfis.perfilDeNovo(cliente));
     }
 
     /**
@@ -137,27 +111,23 @@ public class AuthService {
             throw new AutenticacaoException("E-mail ou senha inválidos.");
         }
         limitador.limpar(chave);
-        return resposta(cliente.get());
+        return resposta(cliente.get(), perfis.perfilDe(cliente.get()));
     }
 
     /** Dados do cliente dono do token (usado por {@code GET /auth/eu}). */
     public RespostaAuth.ClienteResumo eu(UsuarioAutenticado usuario) {
         Cliente c = clientes.findById(usuario.clienteId())
                 .orElseThrow(() -> new AutenticacaoException("A conta deste token não existe mais."));
-        return resumo(c, usuario.perfil());
+        // Perfil ATUAL (e não o do token): reflete na hora uma promoção ou um rebaixamento.
+        return resumo(c, perfis.perfilDe(c));
     }
 
-    private RespostaAuth resposta(Cliente c) {
-        Perfil perfil = perfilDe(c.getEmail());
+    private RespostaAuth resposta(Cliente c, Perfil perfil) {
         return new RespostaAuth(jwt.gerar(c.getId(), perfil), jwt.getExpiracaoSegundos(), resumo(c, perfil));
     }
 
     private RespostaAuth.ClienteResumo resumo(Cliente c, Perfil perfil) {
         return new RespostaAuth.ClienteResumo(c.getId(), c.getNome(), c.getEmail(), perfil.name());
-    }
-
-    private Perfil perfilDe(String email) {
-        return admins.contains(normalizarEmail(email)) ? Perfil.ADMIN : Perfil.USUARIO;
     }
 
     private static String normalizarEmail(String email) {

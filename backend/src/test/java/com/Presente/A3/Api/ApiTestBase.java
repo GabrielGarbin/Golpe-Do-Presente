@@ -3,6 +3,7 @@ package com.Presente.A3.Api;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -18,6 +19,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@TestPropertySource(locations = "classpath:application-test.properties") // vence backend/config: nunca usar o banco real
 abstract class ApiTestBase {
 
     /** E-mail configurado como ADMIN em application-test.properties. */

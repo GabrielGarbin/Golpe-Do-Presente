@@ -36,9 +36,11 @@ public class AutenticacaoInterceptor implements HandlerInterceptor {
     private static final String PREFIXO = "Bearer ";
 
     private final JwtService jwt;
+    private final PerfilService perfis;
 
-    public AutenticacaoInterceptor(JwtService jwt) {
+    public AutenticacaoInterceptor(JwtService jwt, PerfilService perfis) {
         this.jwt = jwt;
+        this.perfis = perfis;
     }
 
     @Override
@@ -62,7 +64,9 @@ public class AutenticacaoInterceptor implements HandlerInterceptor {
                     "Autenticação necessária: envie o cabeçalho Authorization com o token (Bearer).");
             return false;
         }
-        if (exigido == NivelAcesso.ADMIN && !usuario.get().ehAdmin()) {
+        // Para rotas de admin, o perfil é conferido no banco a cada chamada (não só no token):
+        // quem foi rebaixado ou excluído perde o acesso na hora; quem foi promovido já entra.
+        if (exigido == NivelAcesso.ADMIN && !perfis.ehAdminAgora(usuario.get().clienteId())) {
             negar(response, HttpServletResponse.SC_FORBIDDEN, "Acesso restrito a administradores.");
             return false;
         }

@@ -44,3 +44,6 @@ backend/config/
 .env
 .env.*
 !.env.example
+### Logs do iniciar.sh ###
+api.log
+front.log

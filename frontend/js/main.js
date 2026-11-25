@@ -13,6 +13,7 @@ import * as cnpj from './views/cnpj.js';
 import * as assistente from './views/assistente.js';
 import * as denunciar from './views/denunciar.js';
 import * as orientacoes from './views/orientacoes.js';
+import * as admin from './views/admin.js';
 
 /* Indicador de conexão com a API (verifica a cada 30 s, em segundo plano). */
 async function verificarApi() {
@@ -41,6 +42,7 @@ registrar('cnpj', cnpj);
 registrar('assistente', assistente);
 registrar('denunciar', denunciar);
 registrar('orientacoes', orientacoes);
+registrar('admin', admin);
 
 paintIcons(); // ícones criados pelas telas no init()
 iniciarRotas();

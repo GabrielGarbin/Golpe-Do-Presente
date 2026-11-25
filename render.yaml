@@ -1,0 +1,41 @@
+# Blueprint do Render: cria a API e o front-end de uma vez.
+# Render > New + > Blueprint > escolha este repositório > Apply.
+# Os campos marcados com "sync: false" são pedidos na tela (senhas e URLs não ficam no Git).
+#
+# Região "oregon": a mesma do banco (Supabase em us-west-2). API perto do banco = respostas mais rápidas.
+services:
+  - type: web
+    name: golpe-presente-api
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /saude
+    envVars:
+      - key: SUPABASE_DB_URL          # jdbc:postgresql://aws-1-us-west-2.pooler.supabase.com:5432/postgres?sslmode=require
+        sync: false
+      - key: SUPABASE_DB_USER         # postgres.dieflaymwtpupagshxyz
+        sync: false
+      - key: SUPABASE_DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET               # gerado pelo Render (aleatório e fixo)
+        generateValue: true
+      - key: ADMINS_EMAIL             # administradores fixos, separados por vírgula
+        sync: false
+      - key: CORS_ORIGENS             # URL do front, ex.: https://golpe-presente-front.onrender.com
+        sync: false
+      - key: APP_DEMO_SEED
+        value: "false"
+
+  - type: web
+    name: golpe-presente-front
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    healthCheckPath: /
+    envVars:
+      - key: API_URL                  # URL da API, ex.: https://golpe-presente-api.onrender.com
+        sync: false

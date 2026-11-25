@@ -39,4 +39,6 @@ public interface GolpistaRepository extends JpaRepository<Golpista, Long> {
                       @Param("agora") LocalDateTime agora,
                       @Param("limite") int limite,
                       @Param("confirmado") StatusGolpista confirmado);
+
+    long countByStatus(StatusGolpista status);
 }

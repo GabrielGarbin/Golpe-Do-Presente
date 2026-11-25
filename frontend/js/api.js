@@ -96,7 +96,24 @@ export const Api = {
   eu: () => request('/auth/eu'),
 
   /* Denúncia */
-  denunciar: payload => request('/denuncias', { method: 'POST', body: payload })
+  denunciar: payload => request('/denuncias', { method: 'POST', body: payload }),
+
+  /* Administração (todas exigem um administrador; o back-end confere a cada chamada) */
+  admin: {
+    resumo: () => request('/admin/resumo'),
+    usuarios: () => request('/admin/usuarios'),
+    criarUsuario: dados => request('/admin/usuarios', { method: 'POST', body: dados }),
+    editarUsuario: (id, dados) => request(`/admin/usuarios/${id}`, { method: 'PUT', body: dados }),
+    redefinirSenha: (id, senha) => request(`/admin/usuarios/${id}/senha`, { method: 'PUT', body: { senha } }),
+    alterarPerfil: (id, perfil) => request(`/admin/usuarios/${id}/perfil`, { method: 'PUT', body: { perfil } }),
+    excluirUsuario: (id, apagarDenuncias = false) =>
+      request(`/admin/usuarios/${id}?apagarDenuncias=${apagarDenuncias}`, { method: 'DELETE' }),
+    denuncias: () => request('/admin/denuncias'),
+    removerDenuncia: id => request(`/admin/denuncias/${id}`, { method: 'DELETE' }),
+    numeros: () => request('/golpistas'),
+    alterarStatusNumero: (id, status) => request(`/admin/numeros/${id}/status`, { method: 'PUT', body: { status } }),
+    removerNumero: id => request(`/admin/numeros/${id}`, { method: 'DELETE' })
+  }
 };
 
 /**

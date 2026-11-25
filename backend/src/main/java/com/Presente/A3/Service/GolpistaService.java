@@ -1,5 +1,6 @@
 package com.Presente.A3.Service;
 
+import com.Presente.A3.Modelo.Denuncia;
 import com.Presente.A3.Modelo.Golpista;
 import com.Presente.A3.Modelo.StatusGolpista;
 import com.Presente.A3.Repositorio.GolpistaRepository;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -161,6 +163,54 @@ public class GolpistaService {
      */
     public List<Golpista> listarBlacklist() {
         return repositorio.findByStatusOrderByTotalDenunciasDescIdAsc(StatusGolpista.CONFIRMADO);
+    }
+
+    /**
+     * Recalcula contador, datas e status a partir das denúncias que sobraram
+     * (usado quando o administrador remove denúncias). Sem denúncias restantes,
+     * o número sai da base.
+     *
+     * @param restantes denúncias que continuam contra este número
+     * @return o golpista atualizado, ou vazio se ele foi removido
+     */
+    @Transactional
+    public Optional<Golpista> recalcular(Long golpistaId, List<Denuncia> restantes) {
+        Optional<Golpista> existente = findById(golpistaId);
+        if (existente.isEmpty()) {
+            return Optional.empty();
+        }
+        if (restantes.isEmpty()) {
+            repositorio.deleteById(golpistaId);
+            return Optional.empty();
+        }
+        Golpista g = existente.get();
+        g.setTotalDenuncias(restantes.size());
+        g.setStatus(restantes.size() >= limiteConfirmacao ? StatusGolpista.CONFIRMADO : StatusGolpista.SUSPEITO);
+        g.setDataPrimeiraDenuncia(restantes.stream().map(Denuncia::getData)
+                .min(Comparator.naturalOrder()).orElse(null));
+        g.setDataUltimaDenuncia(restantes.stream().map(Denuncia::getData)
+                .max(Comparator.naturalOrder()).orElse(null));
+        return Optional.of(repositorio.save(g));
+    }
+
+    /**
+     * Moderação: o administrador confirma um número manualmente (entra na blacklist)
+     * ou o devolve a SUSPEITO. Novas denúncias continuam seguindo a regra automática.
+     *
+     * @throws NoSuchElementException se o número não existe
+     */
+    @Transactional
+    public Golpista alterarStatus(Long id, StatusGolpista status) {
+        if (status == null) {
+            throw new IllegalArgumentException("Informe o status: SUSPEITO ou CONFIRMADO.");
+        }
+        Golpista g = findById(id).orElseThrow(() -> new NoSuchElementException("Número não encontrado: " + id));
+        g.setStatus(status);
+        return repositorio.save(g);
+    }
+
+    public long countConfirmados() {
+        return repositorio.countByStatus(StatusGolpista.CONFIRMADO);
     }
 
     private Golpista criar(String telefone, String nome, String email) {

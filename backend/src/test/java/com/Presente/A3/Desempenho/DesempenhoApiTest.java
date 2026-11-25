@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
 import java.io.IOException;
 import java.net.URI;
@@ -45,6 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@TestPropertySource(locations = "classpath:application-test.properties") // vence backend/config: nunca usar o banco real
 class DesempenhoApiTest {
 
     /** Cenário normal: requisições sequenciais (um usuário). */

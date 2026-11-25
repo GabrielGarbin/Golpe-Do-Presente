@@ -42,6 +42,11 @@ public class CredencialSenha {
         return clienteId;
     }
 
+    /** Troca de senha (redefinição pelo administrador): grava o novo hash. */
+    public void setSenhaHash(String senhaHash) {
+        this.senhaHash = senhaHash;
+    }
+
     public String getSenhaHash() {
         return senhaHash;
     }

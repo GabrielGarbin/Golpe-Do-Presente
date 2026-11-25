@@ -14,4 +14,9 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     boolean existsByEmailIgnoreCase(String email);
 
     boolean existsByTelefone(String telefone);
+
+    /** Edição pelo admin: o e-mail pode repetir o do próprio cliente, mas não o de outro. */
+    boolean existsByEmailIgnoreCaseAndIdNot(String email, Long id);
+
+    boolean existsByTelefoneAndIdNot(String telefone, Long id);
 }

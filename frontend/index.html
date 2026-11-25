@@ -80,6 +80,8 @@
     <p class="nav-group">Agir</p>
     <a data-nav="denunciar" href="#/denunciar"><i data-icon="flag"></i>Denunciar golpe</a>
     <a data-nav="orientacoes" href="#/orientacoes"><i data-icon="shield"></i>Orientações</a>
+    <p class="nav-group admin-only">Administração</p>
+    <a class="admin-only" data-nav="admin" href="#/admin"><i data-icon="settings"></i>Administração</a>
 
     <div class="nav-foot">
       <span class="tag">Protótipo acadêmico · A3</span>
@@ -304,9 +306,63 @@
         <div class="quiz-grid" id="quizGrid"></div>
       </div>
     </section>
+    <!-- ---------- ADMINISTRAÇÃO (só administradores; o back-end confere cada ação) ---------- -->
+    <section class="view v-admin" id="v-admin" hidden aria-labelledby="t-admin">
+      <div class="view-head">
+        <div>
+          <h1 id="t-admin">Administração</h1>
+          <p class="sub">Modere denúncias, gerencie usuários e cuide da base de números.</p>
+        </div>
+        <div class="seg adm-seg" role="tablist" aria-label="Áreas da administração">
+          <button role="tab" data-aba="denuncias" aria-selected="true" aria-controls="admTabela">Denúncias</button>
+          <button role="tab" data-aba="usuarios" aria-selected="false" aria-controls="admTabela">Usuários</button>
+          <button role="tab" data-aba="numeros" aria-selected="false" aria-controls="admTabela">Números</button>
+        </div>
+      </div>
+
+      <div class="card adm-restrito" id="admRestrito" hidden></div>
+
+      <div class="adm-corpo" id="admCorpo">
+        <div class="kpis adm-kpis">
+          <div class="kpi"><span class="kpi-ic"><i data-icon="users"></i></span><div><b data-ak="usuarios">–</b><span data-ak-sub="usuarios">Usuários cadastrados</span></div></div>
+          <div class="kpi"><span class="kpi-ic"><i data-icon="key"></i></span><div><b data-ak="administradores">–</b><span>Administradores</span></div></div>
+          <div class="kpi"><span class="kpi-ic"><i data-icon="flag"></i></span><div><b data-ak="denuncias">–</b><span data-ak-sub="denuncias">Denúncias</span></div></div>
+          <div class="kpi kpi-red"><span class="kpi-ic"><i data-icon="alert"></i></span><div><b data-ak="numerosConfirmados">–</b><span data-ak-sub="numeros">Números confirmados</span></div></div>
+        </div>
+
+        <article class="card adm-card">
+          <div class="adm-tools">
+            <div class="quick adm-busca" role="search">
+              <i data-icon="search"></i>
+              <label class="sr" for="admBusca">Buscar</label>
+              <input id="admBusca" type="search" placeholder="Buscar" autocomplete="off">
+            </div>
+            <label class="sr" for="admFiltro">Filtrar</label>
+            <select id="admFiltro"></select>
+            <span class="adm-conta" id="admConta" aria-live="polite"></span>
+            <button type="button" class="btn-ghost" id="admAtualizar"><i data-icon="refresh"></i>Atualizar</button>
+            <button type="button" class="btn" id="admNovo" hidden><i data-icon="plus"></i>Novo usuário</button>
+          </div>
+          <div class="adm-tabela" id="admTabela"></div>
+        </article>
+      </div>
+    </section>
   </main>
 
   <!-- ===================== Diálogos ===================== -->
+  <dialog id="dlgAdmin" aria-labelledby="t-dlgAdmin">
+    <form class="dlg" id="formAdmin" novalidate>
+      <h2 id="t-dlgAdmin"></h2>
+      <p class="sub" id="dlgAdminSub"></p>
+      <div id="dlgAdminCorpo"></div>
+      <div id="dlgAdminMsg" aria-live="polite"></div>
+      <div class="dlg-acts">
+        <button type="button" class="btn-ghost" id="dlgAdminCancelar">Cancelar</button>
+        <button type="submit" class="btn" id="dlgAdminOk">Salvar</button>
+      </div>
+    </form>
+  </dialog>
+
   <dialog id="dlgPerfil" aria-labelledby="t-perfil">
     <div class="dlg">
       <h2 id="t-perfil">Entrar</h2>
