@@ -1,5 +1,5 @@
 /**
- * Aba "Denunciar golpe": botão da Delegacia Digital e o envio da denúncia
+ * Aba "Denunciar golpe": botão do WebDenúncia e o envio da denúncia
  * (o que o front manda para a API e como reage à resposta).
  */
 import { test, beforeEach } from 'node:test';
@@ -32,13 +32,13 @@ function preencher(campos) {
 }
 beforeEach(() => { chamadas.length = 0; resposta = { status: 201, body: { id: 1 } }; });
 
-test('botão leva para a Delegacia Digital da Polícia Civil de SP, em nova aba', () => {
-  const link = $('#v-denunciar a#dDelegacia');
+test('botão leva para o WebDenúncia da SSP-SP, em nova aba', () => {
+  const link = $('#v-denunciar a#dWebDenuncia');
   assert.ok(link, 'o botão existe dentro da aba Denunciar');
-  assert.equal(link.getAttribute('href'), 'https://delegaciadigital.policia-civil.sp.gov.br/pagina-inicial');
+  assert.equal(link.getAttribute('href'), 'https://www.webdenuncia.sp.gov.br/');
   assert.equal(link.getAttribute('target'), '_blank');
   assert.match(link.getAttribute('rel'), /noopener/);
-  assert.match(link.textContent, /Delegacia Digital/);
+  assert.match(link.textContent, /WebDenúncia/);
 });
 
 test('envia a denúncia para POST /denuncias com token e o corpo que a API espera', async () => {
