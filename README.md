@@ -133,6 +133,14 @@ Abra `http://localhost:5500`. O selo **"API conectada"** no cabeçalho confirma 
 O front precisa ser aberto por um servidor (não com duplo clique no arquivo), porque usa módulos JavaScript.
 Roteiro de chamadas prontas da API em `backend/demonstracao.http`.
 
+## Testes
+
+| Onde | Comando | O que verifica |
+|------|---------|----------------|
+| `backend/` | `./mvnw test` | API + banco (H2 em memória). `IntegracaoFrontBackApiTest` envia o mesmo JSON que o front envia e confere a denúncia **direto no banco** (todos os campos, contador do golpista, nada gravado em caso de erro, CORS da origem do front). |
+| `tests/` | `npm install` e `npm test` | Front no Node (jsdom, sem navegador): envio da denúncia, botão da Delegacia Digital, número completo para admin e mascarado para cliente, e o **contrato** (toda rota de `api.js` existe num controller Java; campos e canais batem com o back). |
+| `tests/` | `API_URL=http://localhost:8081 npm run e2e` | Ponta a ponta com a API **rodando de verdade**, usando o próprio `frontend/js/api.js`: cadastro → denúncia → estatísticas e consulta atualizadas. Com `ADMIN_EMAIL` e `ADMIN_SENHA`, lê a denúncia de volta da base. **Grava dados reais**: use um banco de desenvolvimento. |
+
 ## Problema da "partida a frio" (feedback da orientadora)
 
 A base de denúncias começa vazia, então só ela não protege ninguém no início. A solução é

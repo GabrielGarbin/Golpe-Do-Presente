@@ -1,0 +1,16 @@
+{
+  "name": "golpe-do-presente-testes",
+  "private": true,
+  "description": "Testes do front-end e da integração front ↔ back (o back-end Java tem os seus em backend/src/test).",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"frontend/*.test.mjs\" \"contrato/*.test.mjs\"",
+    "e2e": "node --test \"e2e/*.test.mjs\""
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

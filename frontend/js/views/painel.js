@@ -6,7 +6,8 @@
  * bloco mostra erro; o restante do painel continua funcionando.
  */
 import { Api } from '../api.js';
-import { $, $$, esc, maskTel, tempoAtras, plural, validTel, invalido } from '../util.js';
+import { $, $$, esc, telParaExibir, tempoAtras, plural, validTel, invalido } from '../util.js';
+import { isAdmin, onClienteChange } from '../session.js';
 import { icon } from '../icons.js';
 import { ir } from '../router.js';
 
@@ -57,7 +58,11 @@ function pintarCamadas(cam) {
     .map(k => `<li class="chip ${cam[k] ? 'on' : ''}" title="${cam[k] ? 'Ativa' : 'Desligada'}">${CAMADAS[k]}</li>`).join('');
 }
 
+let ultimosGolpistas = null;
+
 function pintarAlertas(golpistas) {
+  ultimosGolpistas = golpistas;
+  const admin = isAdmin();
   const recentes = [...golpistas]
     .sort((a, b) => String(b.dataUltimaDenuncia || '').localeCompare(String(a.dataUltimaDenuncia || '')))
     .slice(0, 8);
@@ -70,7 +75,7 @@ function pintarAlertas(golpistas) {
       .filter(Boolean).map(esc).join(' · ');
     return `<button class="alert-row" data-tel="${esc(g.telefone)}">
       <span class="alert-ic alto">${icon('alert')}</span>
-      <span class="alert-txt"><b>${maskTel(g.telefone)}</b><small>${info}</small></span>
+      <span class="alert-txt"><b>${esc(telParaExibir(g.telefone, admin))}</b><small>${info}</small></span>
       <span class="badge">Confirmado</span>
     </button>`;
   }).join('');
@@ -93,6 +98,8 @@ async function carregar() {
 }
 
 export function init() {
+  // Entrou ou saiu como admin: redesenha os alertas com o número completo ou mascarado.
+  onClienteChange(() => { if (ultimosGolpistas) pintarAlertas(ultimosGolpistas); });
   $('#fQuick').addEventListener('submit', e => {
     e.preventDefault();
     const n = $('#qNum').value;

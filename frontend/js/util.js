@@ -18,6 +18,19 @@ export function maskTel(t) {
   const d = digits(t);
   return `(${d.slice(0, 2)}) ${d.length === 11 ? '9' : ''}****-${d.slice(-4)}`;
 }
+/** Número completo e formatado: (11) 98765-0001 */
+export function fmtTel(t) {
+  const d = digits(t);
+  if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+  if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return d;
+}
+/**
+ * Telefone como deve aparecer na tela: o administrador vê o número completo
+ * (ele já tem acesso a dados sensíveis); o cliente e o visitante veem só uma
+ * parte, por privacidade.
+ */
+export const telParaExibir = (t, admin) => (admin ? fmtTel(t) : maskTel(t));
 function fmtTelDigitando(v) {
   const d = digits(v).slice(0, 11);
   if (d.length <= 2) return d ? `(${d}` : '';

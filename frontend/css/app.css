@@ -310,6 +310,12 @@ input[aria-invalid="true"] { border-color: var(--brand); }
 .btn-ghost { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); }
 .btn-ghost:hover { background: var(--bg); }
 .btn-block { width: 100%; margin-top: 16px; }
+a.btn, a.btn-ghost { text-decoration: none; }
+.btn-ext { width: 100%; white-space: normal; text-align: center; line-height: 1.2; }
+.btn-ext i { display: inline-flex; width: 18px; height: 18px; flex: none; }
+.btn-ext i svg { width: 100%; height: 100%; }
+.aside-cta { padding: 0 20px 16px; }
+.aside-nota { margin: 6px 0 0; font-size: var(--fs-xs); color: var(--muted); text-align: center; }
 .btn-text { border: 0; background: none; color: var(--brand); font-weight: 600; font-size: var(--fs-sm); cursor: pointer; padding: 10px 0 0; }
 .btn-text:hover { text-decoration: underline; }
 .quick .btn { height: 40px; }
@@ -656,6 +662,7 @@ dialog::backdrop { background: rgba(22, 25, 29, .5); backdrop-filter: blur(2px);
   .checks { padding: 0 14px 6px; }
   .checks li { font-size: 13px; }
   .aside-list { padding: 0 14px 6px; }
+  .aside-cta { padding: 0 14px 14px; }
   .toast { left: 12px; right: 12px; bottom: 12px; }
 }
 @media (max-width: 520px) {
