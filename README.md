@@ -73,8 +73,8 @@ Botão **Acessibilidade** no cabeçalho (as escolhas ficam salvas no navegador):
 - Base: rótulos em todos os campos, resultados anunciados a leitores de tela, navegação por teclado
   com foco visível, risco sempre escrito (nunca só pela cor) e respeito a "reduzir movimento".
 
-> O logo é carregado de `frontend/assets/logo-bradesco.svg` (não incluído: use o arquivo oficial,
-> ver `assets/LEIA-ME.md`). A interface traz o aviso "Protótipo acadêmico · A3" para deixar claro
+> O logo é carregado de `frontend/assets/logo-bradesco.png` (para trocar, veja
+> `assets/LEIA-ME.md`). A interface traz o aviso "Protótipo acadêmico · A3" para deixar claro
 > que não é um canal oficial do banco.
 
 ## Banco de dados (Supabase)
